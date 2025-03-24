@@ -220,7 +220,6 @@ const ChatbotAssistant = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          onPointerDown={!isOpen ? startDrag : undefined}
         >
           {isOpen ? (
             <X className="text-white h-6 w-6" />
