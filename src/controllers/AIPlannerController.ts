@@ -1,3 +1,4 @@
+
 import { AIGeneratedPlan, UserPreferences, ScheduleItem } from "../models/AIPlanner";
 import { ApiService } from "../services/ApiService";
 
@@ -21,26 +22,29 @@ export class AIPlannerController {
             time: preferences.wakeUpTime,
             activity: "Morning Routine & Breakfast",
             duration: 30,
-            priority: "medium"
+            priority: "medium",
+            resources: ["5-minute morning stretch routine", "Quick healthy breakfast ideas"]
           },
           {
             id: "2",
             time: this.addMinutesToTime(preferences.wakeUpTime, 30),
             activity: `Focus Session: ${preferences.primaryGoal}`,
             duration: 90,
-            priority: "high"
+            priority: "high",
+            resources: ["Deep work techniques", "How to maintain focus"]
           },
           {
             id: "3",
             time: this.addMinutesToTime(preferences.wakeUpTime, 120),
             activity: "Short Break",
             duration: preferences.breakDuration,
-            priority: "low"
+            priority: "low",
+            resources: ["Effective microbreak activities"]
           },
           // Add more activities based on user preferences
         ];
 
-        // Return a complete plan
+        // Return a complete plan with resources
         return {
           dailySchedule,
           weeklyFocus: [
@@ -52,6 +56,13 @@ export class AIPlannerController {
             "Daily coding practice",
             "10-minute meditation",
             "Regular stretching breaks"
+          ],
+          resources: [
+            "Deep Work by Cal Newport - book recommendation",
+            "Pomodoro Technique - productivity method",
+            "Mindfulness practices for better focus",
+            "Task batching to improve efficiency",
+            "The importance of regular breaks for productivity"
           ]
         };
       }

@@ -1,5 +1,5 @@
 
-import { Todo, CreateTodoInput, UpdateTodoInput, EnhancedTodo, CreateEnhancedTodoInput, UpdateEnhancedTodoInput } from '../models/Todo';
+import { Todo, CreateTodoInput, UpdateTodoInput, EnhancedTodo, CreateEnhancedTodoInput, UpdateEnhancedTodoInput, EisenhowerQuadrant } from '../models/Todo';
 import { ApiService } from '../services/ApiService';
 
 // This controller interfaces with your FastAPI backend
@@ -30,7 +30,11 @@ export class TodoController {
           endTime: todo.endTime ? new Date(todo.endTime) : undefined,
           priority: todo.priority || 'medium',
           category: todo.category || 'other',
-          duration: todo.duration || 30
+          duration: todo.duration || 30,
+          eisenhowerQuadrant: todo.eisenhowerQuadrant,
+          timeSpent: todo.timeSpent || 0,
+          aiGenerated: todo.aiGenerated || false,
+          resources: todo.resources || []
         }));
       }
     } catch (error) {
@@ -54,7 +58,10 @@ export class TodoController {
           createdAt: new Date(),
           priority: (todoInput as any).priority || 'medium',
           category: (todoInput as any).category || 'other',
-          duration: (todoInput as any).duration || 30
+          duration: (todoInput as any).duration || 30,
+          timeSpent: (todoInput as any).timeSpent || 0,
+          aiGenerated: (todoInput as any).aiGenerated || false,
+          resources: (todoInput as any).resources || []
         };
         
         const updatedTodos = [...todos, newTodo];
@@ -141,5 +148,55 @@ export class TodoController {
   // Move a todo to a new date
   static async moveToDate(id: string, newDate: Date): Promise<EnhancedTodo | null> {
     return this.updateTodo(id, { dueDate: newDate } as UpdateEnhancedTodoInput);
+  }
+
+  // Log time spent on a task (for Pomodoro integration)
+  static async logTimeSpent(id: string, minutes: number): Promise<EnhancedTodo | null> {
+    const task = await this.getTaskById(id);
+    if (!task) return null;
+    
+    const currentTimeSpent = task.timeSpent || 0;
+    return this.updateTodo(id, { 
+      timeSpent: currentTimeSpent + minutes 
+    } as UpdateEnhancedTodoInput);
+  }
+
+  // Get a single task by ID
+  static async getTaskById(id: string): Promise<EnhancedTodo | null> {
+    try {
+      const todos = await this.getTodos();
+      return todos.find(todo => todo.id === id) || null;
+    } catch (error) {
+      console.error('Failed to get task by id:', error);
+      return null;
+    }
+  }
+
+  // Update Eisenhower quadrant for a task
+  static async updateEisenhowerQuadrant(id: string, quadrant: EisenhowerQuadrant): Promise<EnhancedTodo | null> {
+    return this.updateTodo(id, { eisenhowerQuadrant: quadrant } as UpdateEnhancedTodoInput);
+  }
+
+  // Convert AI generated plan to tasks
+  static async convertAIPlanToTasks(planItems: any[]): Promise<EnhancedTodo[]> {
+    const tasks: EnhancedTodo[] = [];
+    
+    for (const item of planItems) {
+      const newTask = await this.createTodo({
+        title: item.activity,
+        completed: false,
+        priority: item.priority || 'medium',
+        category: 'other',
+        duration: item.duration || 30,
+        dueDate: new Date(),
+        description: item.description || '',
+        aiGenerated: true,
+        resources: item.resources || []
+      } as CreateEnhancedTodoInput);
+      
+      tasks.push(newTask);
+    }
+    
+    return tasks;
   }
 }

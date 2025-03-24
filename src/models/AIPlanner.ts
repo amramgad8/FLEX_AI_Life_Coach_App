@@ -7,16 +7,19 @@ export interface UserPreferences {
   primaryGoal: string;
 }
 
-export interface AIGeneratedPlan {
-  dailySchedule: ScheduleItem[];
-  weeklyFocus: string[];
-  suggestedHabits: string[];
-}
-
 export interface ScheduleItem {
   id: string;
   time: string;
   activity: string;
-  duration: number;
-  priority: 'high' | 'medium' | 'low';
+  duration?: number;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  description?: string;
+  resources?: string[];
+}
+
+export interface AIGeneratedPlan {
+  dailySchedule: ScheduleItem[];
+  weeklyFocus: string[];
+  suggestedHabits: string[];
+  resources?: string[];
 }

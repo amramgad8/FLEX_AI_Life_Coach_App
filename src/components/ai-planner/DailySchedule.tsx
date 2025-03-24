@@ -1,27 +1,35 @@
 
 import React from 'react';
-import { ScheduleItem as ScheduleItemType } from '../../models/AIPlanner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar } from 'lucide-react';
-import ScheduleItem from './ScheduleItem';
+import { ScheduleItem } from '@/models/AIPlanner';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Clock } from 'lucide-react';
+import DailyScheduleItem from './DailyScheduleItem';
 
 interface DailyScheduleProps {
-  items: ScheduleItemType[];
+  items: ScheduleItem[];
+  showAddToTasks?: boolean;
 }
 
-const DailySchedule = ({ items }: DailyScheduleProps) => {
+const DailySchedule = ({ items, showAddToTasks = false }: DailyScheduleProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-chameleon-green" />
-          Your Personalized Daily Schedule
+        <CardTitle className="flex items-center">
+          <Clock className="h-5 w-5 mr-2 text-green-500" />
+          Daily Schedule
         </CardTitle>
+        <CardDescription>
+          Your recommended daily routine based on your preferences
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {items.map((item) => (
-            <ScheduleItem key={item.id} item={item} />
+        <div className="space-y-1">
+          {items.map((item, index) => (
+            <DailyScheduleItem 
+              key={index} 
+              item={item} 
+              showAddToTasks={showAddToTasks}
+            />
           ))}
         </div>
       </CardContent>

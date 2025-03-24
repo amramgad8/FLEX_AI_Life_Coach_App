@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoController } from '@/controllers/TodoController';
-import { EnhancedTodo, TaskFilters } from '@/models/Todo';
+import { EnhancedTodo, TaskFilters, EisenhowerQuadrant } from '@/models/Todo';
 import { toast } from '@/components/ui/use-toast';
 import { isAfter, isBefore, isSameDay, startOfDay } from 'date-fns';
 
@@ -58,6 +58,45 @@ export const useTasks = () => {
     }
   });
 
+  // Time logging mutation (for Pomodoro)
+  const logTimeSpentMutation = useMutation({
+    mutationFn: ({ taskId, minutes }: { taskId: string; minutes: number }) => 
+      TodoController.logTimeSpent(taskId, minutes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast({
+        title: "Time logged",
+        description: "Time spent has been logged to your task.",
+      });
+    }
+  });
+
+  // Eisenhower Matrix update mutation
+  const updateEisenhowerQuadrantMutation = useMutation({
+    mutationFn: ({ taskId, quadrant }: { taskId: string; quadrant: EisenhowerQuadrant }) => 
+      TodoController.updateEisenhowerQuadrant(taskId, quadrant),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast({
+        title: "Task categorized",
+        description: "Task has been categorized in the Eisenhower Matrix.",
+      });
+    }
+  });
+
+  // Convert AI Plan to Tasks mutation
+  const convertAIPlanToTasksMutation = useMutation({
+    mutationFn: (planItems: any[]) => 
+      TodoController.convertAIPlanToTasks(planItems),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast({
+        title: "Plan converted to tasks",
+        description: "AI generated plan has been added to your tasks.",
+      });
+    }
+  });
+
   // Tasks query
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['todos'],
@@ -79,6 +118,12 @@ export const useTasks = () => {
       
       // Filter by category
       if (filters.categories.length > 0 && !filters.categories.includes(task.category)) {
+        return false;
+      }
+      
+      // Filter by Eisenhower quadrant
+      if (filters.eisenhowerQuadrants?.length && task.eisenhowerQuadrant && 
+          !filters.eisenhowerQuadrants.includes(task.eisenhowerQuadrant)) {
         return false;
       }
       
@@ -111,6 +156,11 @@ export const useTasks = () => {
     });
   };
 
+  // Get tasks by Eisenhower quadrant
+  const getTasksByQuadrant = (quadrant: EisenhowerQuadrant) => {
+    return tasks.filter(task => task.eisenhowerQuadrant === quadrant);
+  };
+
   return {
     tasks,
     isLoading,
@@ -123,6 +173,16 @@ export const useTasks = () => {
     completeTask: (task: EnhancedTodo, completed: boolean) => {
       updateTaskMutation.mutate({ id: task.id, completed });
     },
-    filterTasks
+    logTimeSpent: (taskId: string, minutes: number) => {
+      logTimeSpentMutation.mutate({ taskId, minutes });
+    },
+    updateEisenhowerQuadrant: (taskId: string, quadrant: EisenhowerQuadrant) => {
+      updateEisenhowerQuadrantMutation.mutate({ taskId, quadrant });
+    },
+    convertAIPlanToTasks: (planItems: any[]) => {
+      convertAIPlanToTasksMutation.mutate(planItems);
+    },
+    filterTasks,
+    getTasksByQuadrant
   };
 };

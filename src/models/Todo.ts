@@ -1,4 +1,3 @@
-
 // Todo data model
 export interface Todo {
   id: string;
@@ -13,6 +12,9 @@ export type UpdateTodoInput = Partial<Omit<Todo, 'id' | 'createdAt'>>;
 // Task priority types and configuration
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskCategory = 'work' | 'personal' | 'study' | 'health' | 'errands' | 'meeting' | 'other';
+
+// Eisenhower Matrix quadrants
+export type EisenhowerQuadrant = 'urgent-important' | 'not-urgent-important' | 'urgent-not-important' | 'not-urgent-not-important';
 
 export const PRIORITY_CONFIG: Record<TaskPriority, { 
   label: string; 
@@ -101,6 +103,49 @@ export const CATEGORY_CONFIG: Record<TaskCategory, {
   }
 };
 
+// Eisenhower Matrix configuration
+export const EISENHOWER_CONFIG: Record<EisenhowerQuadrant, {
+  label: string;
+  description: string;
+  color: string;
+  bgColor: string;
+  textColor: string;
+  action: string;
+}> = {
+  'urgent-important': {
+    label: 'Do First',
+    description: 'Urgent and Important',
+    color: 'bg-red-500',
+    bgColor: 'bg-red-100',
+    textColor: 'text-red-800',
+    action: 'Do these tasks immediately'
+  },
+  'not-urgent-important': {
+    label: 'Schedule',
+    description: 'Not Urgent but Important',
+    color: 'bg-blue-500',
+    bgColor: 'bg-blue-100',
+    textColor: 'text-blue-800',
+    action: 'Decide when to do these tasks'
+  },
+  'urgent-not-important': {
+    label: 'Delegate',
+    description: 'Urgent but Not Important',
+    color: 'bg-yellow-500',
+    bgColor: 'bg-yellow-100',
+    textColor: 'text-yellow-800',
+    action: 'Who can help with these tasks?'
+  },
+  'not-urgent-not-important': {
+    label: 'Eliminate',
+    description: 'Not Urgent and Not Important',
+    color: 'bg-gray-500',
+    bgColor: 'bg-gray-100',
+    textColor: 'text-gray-800',
+    action: 'Eliminate these tasks if possible'
+  }
+};
+
 // Enhanced Todo with additional fields
 export interface EnhancedTodo extends Todo {
   priority: TaskPriority;
@@ -111,6 +156,10 @@ export interface EnhancedTodo extends Todo {
   endTime?: Date;
   description?: string;
   location?: string;
+  eisenhowerQuadrant?: EisenhowerQuadrant;
+  timeSpent?: number; // in minutes, for pomodoro tracking
+  aiGenerated?: boolean; // flag for AI generated tasks
+  resources?: string[]; // list of related resources
 }
 
 export type CreateEnhancedTodoInput = Omit<EnhancedTodo, 'id' | 'createdAt'>;
@@ -130,4 +179,5 @@ export interface TaskFilters {
     max?: number;
   };
   showCompleted: boolean;
+  eisenhowerQuadrants?: EisenhowerQuadrant[];
 }
