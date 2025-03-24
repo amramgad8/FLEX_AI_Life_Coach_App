@@ -205,8 +205,10 @@ const ChatPlannerFlow = ({
       
       // Show first question after a delay
       setTimeout(() => {
-        addQuestionToConversation(questions[0]);
-        setShowNextQuestion(true);
+        if (questions.length > 0) {
+          addQuestionToConversation(questions[0]);
+          setShowNextQuestion(true);
+        }
       }, 1000);
     }
   }, [questions]);
@@ -226,6 +228,10 @@ const ChatPlannerFlow = ({
   };
 
   const handleAnswer = (value: string | number | string[]) => {
+    if (activeQuestion >= questions.length) {
+      return;
+    }
+    
     const currentQuestion = questions[activeQuestion];
 
     // Format the answer for display in conversation
@@ -260,8 +266,10 @@ const ChatPlannerFlow = ({
         
         // Show next question after a short delay
         setTimeout(() => {
-          addQuestionToConversation(questions[activeQuestion + 1]);
-          setShowNextQuestion(true);
+          if (activeQuestion + 1 < questions.length) {
+            addQuestionToConversation(questions[activeQuestion + 1]);
+            setShowNextQuestion(true);
+          }
         }, 600);
       } else {
         // All questions have been answered

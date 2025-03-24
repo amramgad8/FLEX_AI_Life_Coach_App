@@ -8,6 +8,10 @@ interface ChatMessageProps {
 }
 
 const ChatMessage = ({ content, type }: ChatMessageProps) => {
+  if (!content) {
+    return null; // Don't render anything if content is empty
+  }
+  
   return (
     <div className={`flex ${type === 'answer' ? 'justify-end' : 'justify-start'}`}>
       <div className={`
