@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import Navbar from '@/components/Navbar';
 import EisenhowerMatrix from '@/components/eisenhower/EisenhowerMatrix';
 import { useTasks } from '@/hooks/useTasks';
@@ -38,13 +40,15 @@ const EisenhowerMatrixView = () => {
           </Button>
         </motion.div>
         
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : (
-          <EisenhowerMatrix tasks={tasks} />
-        )}
+        <DndProvider backend={HTML5Backend}>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <EisenhowerMatrix tasks={tasks} />
+          )}
+        </DndProvider>
       </div>
     </div>
   );
