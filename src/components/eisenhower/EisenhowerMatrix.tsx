@@ -84,6 +84,11 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ tasks }) => {
     updateEisenhowerQuadrant(taskId, quadrant);
   };
 
+  // Create wrapper functions to match the expected prop types
+  const handleDeleteTask = (task: EnhancedTodo) => {
+    deleteTask(task.id);
+  };
+
   // Group tasks by quadrant
   const tasksByQuadrant: Record<EisenhowerQuadrant, EnhancedTodo[]> = {
     'urgent-important': tasks.filter(t => t.eisenhowerQuadrant === 'urgent-important'),
@@ -121,7 +126,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ tasks }) => {
                     onTaskDrop={handleTaskDrop}
                     onEditTask={updateTask}
                     onCompleteTask={completeTask}
-                    onDeleteTask={deleteTask}
+                    onDeleteTask={handleDeleteTask}
                   />
                 );
               })}
@@ -145,7 +150,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ tasks }) => {
                     task={task}
                     onClick={updateTask}
                     onComplete={completeTask}
-                    onDelete={deleteTask}
+                    onDelete={handleDeleteTask}
                   />
                 ))}
               </div>
