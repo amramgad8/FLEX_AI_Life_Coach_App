@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AIPlannerController } from '../controllers/AIPlannerController';
 import { UserPreferences, AIGeneratedPlan } from '../models/AIPlanner';
+import { OnboardingData } from './Onboarding';
 import { toast } from '@/components/ui/use-toast';
 import Navbar from '../components/Navbar';
 import PlannerHeader from '../components/ai-planner/PlannerHeader';
@@ -17,6 +18,63 @@ const AIPlanner = () => {
   const [generatedPlan, setGeneratedPlan] = useState<AIGeneratedPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+
+  // Load onboarding data if available
+  useEffect(() => {
+    const storedData = localStorage.getItem('onboardingData');
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData) as OnboardingData;
+        setOnboardingData(parsedData);
+        
+        // Use onboarding data to personalize preferences
+        const updatedPreferences: UserPreferences = {
+          ...preferences
+        };
+        
+        // Update primary goal based on user's goal from onboarding
+        if (parsedData.goal) {
+          switch (parsedData.goal) {
+            case 'productivity':
+              updatedPreferences.primaryGoal = 'Increase Productivity';
+              break;
+            case 'focus':
+              updatedPreferences.primaryGoal = 'Improve Focus';
+              break;
+            case 'task-management':
+              updatedPreferences.primaryGoal = 'Better Task Management';
+              break;
+            case 'big-goals':
+              updatedPreferences.primaryGoal = 'Achieve Big Goals';
+              break;
+          }
+        }
+        
+        // Adjust focus periods based on time commitment
+        if (parsedData.timeCommitment) {
+          switch (parsedData.timeCommitment) {
+            case 'less-than-30':
+              updatedPreferences.focusPeriods = 2;
+              break;
+            case '30-to-60':
+              updatedPreferences.focusPeriods = 3;
+              break;
+            case '60-to-120':
+              updatedPreferences.focusPeriods = 5;
+              break;
+            case 'unlimited':
+              updatedPreferences.focusPeriods = 8;
+              break;
+          }
+        }
+        
+        setPreferences(updatedPreferences);
+      } catch (error) {
+        console.error("Error parsing onboarding data:", error);
+      }
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,7 +96,8 @@ const AIPlanner = () => {
     setIsGenerating(true);
     
     try {
-      const plan = await AIPlannerController.generatePlan(preferences);
+      // Pass onboarding data to generate a more personalized plan
+      const plan = await AIPlannerController.generatePlan(preferences, onboardingData);
       setGeneratedPlan(plan);
       setIsEditing(false);
       
@@ -74,7 +133,9 @@ const AIPlanner = () => {
       <Navbar />
       <div className="container mx-auto py-28 px-4">
         <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-          <PlannerHeader />
+          <PlannerHeader 
+            personalizedGreeting={onboardingData ? `Based on your ${onboardingData.mbtiType} personality type` : undefined}
+          />
 
           <PreferencesForm
             preferences={preferences}
