@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import FlowTasks from "./pages/FlowTasks";
+import TaskHub from "./pages/FlowTasks";
 import Dashboard from "./pages/Dashboard";
 import AIPlanner from "./pages/AIPlanner";
 import Blog from "./pages/Blog";
@@ -24,8 +24,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/todo" element={<FlowTasks />} />
-          <Route path="/flow-tasks" element={<FlowTasks />} />
+          <Route path="/todo" element={<TaskHub />} />
+          <Route path="/flow-tasks" element={<TaskHub />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ai-planner" element={<AIPlanner />} />
           <Route path="/blog" element={<Blog />} />
