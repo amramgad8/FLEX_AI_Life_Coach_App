@@ -4,7 +4,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
-import ChatbotAssistant from '../components/ChatbotAssistant';
+import ChatbotAssistant from '../components/chatbot/ChatbotAssistant';
 import { TaskFilters } from '@/models/Todo';
 import { useCalendarNavigation } from '@/hooks/useCalendarNavigation';
 import { useTasks } from '@/hooks/useTasks';
