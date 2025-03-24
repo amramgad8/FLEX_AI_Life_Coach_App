@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,25 +15,10 @@ import {
   CalendarIcon,
   Tag
 } from 'lucide-react';
-import { PRIORITY_CONFIG, CATEGORY_CONFIG, TaskPriority, TaskCategory } from '@/models/Todo';
+import { PRIORITY_CONFIG, CATEGORY_CONFIG, TaskPriority, TaskCategory, TaskFilters } from '@/models/Todo';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-
-export interface TaskFilters {
-  search: string;
-  priorities: TaskPriority[];
-  categories: TaskCategory[];
-  dateRange: {
-    from?: Date;
-    to?: Date;
-  };
-  durationRange: {
-    min?: number;
-    max?: number;
-  };
-  showCompleted: boolean;
-}
 
 interface FilterBarProps {
   filters: TaskFilters;
