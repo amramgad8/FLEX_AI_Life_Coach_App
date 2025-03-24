@@ -1,87 +1,75 @@
 
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Hero = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-white to-green-50 flex items-center justify-center overflow-hidden">
-      <div className="container mx-auto px-4 py-28 md:py-40 z-10">
-        <div className="flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 mb-12 md:mb-0">
-            <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-flex-text mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              Adapt, Evolve, <br/>
-              <span className="bg-clip-text text-transparent bg-flex-gradient">
-                Flourish.
-              </span>
-            </motion.h1>
-            <motion.p 
-              className="text-lg text-gray-600 mb-8 max-w-xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              The AI-powered productivity app that adapts to your workflow and helps you achieve your goals through personalized task management.
-            </motion.p>
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Link to="/ai-planner" className="cta-button">
-                Start Your Journey
-              </Link>
-              <Link to="/flow-tasks" className="flex items-center justify-center px-6 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors duration-300">
-                Try Flow Tasks
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Link>
-            </motion.div>
-          </div>
-          <div className="md:w-1/2 relative">
-            <motion.div
-              className="relative z-10 flex justify-center items-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              {/* Larger Chameleon Image with Enhanced Shadow */}
-              <motion.div 
-                className="w-full max-w-[120%] md:max-w-[130%] -mr-8 md:-mr-16"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ 
-                  duration: 0.8, 
-                  delay: 0.5,
-                  type: "spring",
-                  stiffness: 100 
-                }}
+    <div className="relative bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+          <svg
+            className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-white transform translate-x-1/2"
+            fill="currentColor"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <polygon points="50,0 100,0 50,100 0,100" />
+          </svg>
+
+          <main className="pt-10 mx-auto max-w-7xl px-4 sm:pt-12 sm:px-6 md:pt-16 lg:pt-20 lg:px-8 xl:pt-28">
+            <div className="sm:text-center lg:text-left">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl"
               >
-                <img 
-                  src="/lovable-uploads/e1cb6a1f-60f1-4bb8-8d81-cf7ad0476d86.png" 
-                  alt="Flex Chameleon" 
-                  className="w-full h-auto" 
-                  style={{ 
-                    filter: "drop-shadow(0 15px 30px rgba(0, 0, 0, 0.25))",
-                  }}
-                />
+                <span className="block xl:inline">Manage tasks with</span>{' '}
+                <span className="block text-indigo-600 xl:inline">efficiency and focus</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0"
+              >
+                Boost your productivity with our comprehensive task management platform. Track your tasks, focus with Pomodoro, and prioritize effectively with the Eisenhower Matrix.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start"
+              >
+                <div className="rounded-md shadow">
+                  <Link to="/onboarding">
+                    <Button className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
+                      Start Your Journey
+                    </Button>
+                  </Link>
+                </div>
+                <div className="mt-3 sm:mt-0 sm:ml-3">
+                  <Link to="/todo">
+                    <Button variant="outline" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10">
+                      Explore Tasks
+                    </Button>
+                  </Link>
+                </div>
               </motion.div>
-            </motion.div>
-            
-            <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-flex-orange/15 rounded-full filter blur-3xl" />
-            <div className="absolute -left-16 -top-16 w-64 h-64 bg-flex-green/15 rounded-full filter blur-3xl" />
-          </div>
+            </div>
+          </main>
         </div>
       </div>
-      
-      <div className="absolute top-1/4 right-10 w-24 h-24 bg-flex-yellow/25 rounded-full filter blur-xl animate-float" />
-      <div className="absolute bottom-1/4 left-10 w-36 h-36 bg-flex-green/25 rounded-full filter blur-xl animate-float" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/3 left-1/4 w-20 h-20 bg-flex-orange/25 rounded-full filter blur-xl animate-float" style={{ animationDelay: '2s' }} />
+      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+        <img
+          className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
+          src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2850&q=80"
+          alt="Office workspace"
+        />
+      </div>
     </div>
   );
 };

@@ -13,6 +13,9 @@ import Blog from "./pages/Blog";
 import Focus from "./pages/Focus";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
+import Onboarding from "./pages/Onboarding";
+import EisenhowerMatrixView from "./pages/EisenhowerMatrixView";
+import PomodoroFocus from "./pages/PomodoroFocus";
 
 const queryClient = new QueryClient();
 
@@ -30,8 +33,11 @@ const App = () => (
           <Route path="/ai-planner" element={<AIPlanner />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/focus" element={<Focus />} />
+          <Route path="/pomodoro" element={<PomodoroFocus />} />
+          <Route path="/eisenhower" element={<EisenhowerMatrixView />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/about" element={<About />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
