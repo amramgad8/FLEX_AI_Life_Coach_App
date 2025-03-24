@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTasks } from '@/hooks/useTasks';
-import { Play, Pause, RotateCcw, Clock, Check, Settings as SettingsIcon } from 'lucide-react';
+import { Play, Pause, RotateCcw, Clock, Check, Settings as SettingsIcon, Coffee } from 'lucide-react';
 import PomodoroTaskIntegration from '@/components/focus/PomodoroTaskIntegration';
 import PomodoroSettings from '@/components/focus/PomodoroSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
