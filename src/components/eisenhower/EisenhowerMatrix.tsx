@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
 import { EnhancedTodo, EisenhowerQuadrant, EISENHOWER_CONFIG } from '@/models/Todo';
 import { useTasks } from '@/hooks/useTasks';
 import TaskItem from '@/components/calendar/TaskItem';
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Search, Plus } from 'lucide-react';
+import { useDrop } from 'react-dnd';
 
 interface EisenhowerMatrixProps {
   tasks: EnhancedTodo[];
