@@ -84,7 +84,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ tasks }) => {
     updateEisenhowerQuadrant(taskId, quadrant);
   };
 
-  // Create wrapper functions to match the expected prop types
+  // Create a wrapper function to match the expected prop types
   const handleDeleteTask = (task: EnhancedTodo) => {
     deleteTask(task.id);
   };

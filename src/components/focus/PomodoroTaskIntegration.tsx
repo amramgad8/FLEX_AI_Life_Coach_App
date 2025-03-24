@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EnhancedTodo } from '@/models/Todo';
 import { useTasks } from '@/hooks/useTasks';
-import { Clock, Play, Check, Tag } from 'lucide-react';
+import { Clock, Play, Check, Tag, Timer } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface PomodoroTaskIntegrationProps {
   onSelectTask: (taskId: string) => void;
@@ -46,20 +47,25 @@ const PomodoroTaskIntegration: React.FC<PomodoroTaskIntegrationProps> = ({
         {activeTask ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <h3 className="font-medium">Current Task:</h3>
-                <p className="text-lg">{activeTask.title}</p>
-                {activeTask.timeSpent && (
-                  <p className="text-sm text-gray-500">
-                    <Clock className="inline h-4 w-4 mr-1" /> 
-                    Time spent: {activeTask.timeSpent} minutes
-                  </p>
-                )}
+                <p className="text-lg truncate max-w-full">{activeTask.title}</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  <Badge variant="outline" className={`${activeTask.timeSpent ? 'bg-blue-50 text-blue-600' : ''}`}>
+                    <Clock className="inline h-3 w-3 mr-1" /> 
+                    {activeTask.timeSpent ? `${activeTask.timeSpent} minutes logged` : 'No time logged yet'}
+                  </Badge>
+                  {activeTask.eisenhowerQuadrant && (
+                    <Badge variant="outline" className="bg-purple-50 text-purple-600">
+                      Eisenhower: {activeTask.eisenhowerQuadrant.split('-').join(' ')}
+                    </Badge>
+                  )}
+                </div>
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                className="text-green-600"
+                className="text-green-600 shrink-0"
                 onClick={() => onSessionComplete(activeTask.id, sessionLength)}
               >
                 <Check className="mr-1 h-4 w-4" />
@@ -80,7 +86,7 @@ const PomodoroTaskIntegration: React.FC<PomodoroTaskIntegrationProps> = ({
                 {incompleteTasks.length > 0 ? (
                   incompleteTasks.map(task => (
                     <SelectItem key={task.id} value={task.id}>
-                      {task.title}
+                      <div className="truncate max-w-[200px]">{task.title}</div>
                     </SelectItem>
                   ))
                 ) : (
@@ -96,7 +102,7 @@ const PomodoroTaskIntegration: React.FC<PomodoroTaskIntegrationProps> = ({
                 onClick={() => onSelectTask(selectedTaskId)}
                 className="w-full"
               >
-                <Play className="mr-2 h-4 w-4" />
+                <Timer className="mr-2 h-4 w-4" />
                 Focus on This Task
               </Button>
             )}

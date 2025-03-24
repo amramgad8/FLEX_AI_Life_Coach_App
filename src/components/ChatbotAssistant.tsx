@@ -1,5 +1,6 @@
+
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { 
   MessageCircle, 
   X, 
@@ -12,7 +13,8 @@ import {
   PencilRuler,
   ZapIcon,
   Brain,
-  ArrowUpRight
+  ArrowUpRight,
+  Move
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -96,12 +98,19 @@ const ChatbotAssistant = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("chat");
   const [aiModel, setAiModel] = useState<string>("default");
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const dragControls = useDragControls();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Auto-scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Start drag using controls
+  function startDrag(event: React.PointerEvent<HTMLDivElement>) {
+    dragControls.start(event);
+  }
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
@@ -179,25 +188,54 @@ const ChatbotAssistant = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
-      {/* Floating button */}
-      <motion.button
-        className={`flex items-center justify-center w-14 h-14 rounded-full shadow-lg ${
-          isOpen ? 'bg-gray-700' : 'bg-flex-gradient'
-        }`}
-        onClick={toggleChatbot}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+    <motion.div 
+      className="fixed z-50"
+      initial={{ bottom: 20, right: 20 }}
+      drag
+      dragControls={dragControls}
+      dragMomentum={false}
+      dragElastic={0}
+      dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+      onDragEnd={(e, info) => {
+        setPosition({ x: info.point.x, y: info.point.y });
+      }}
+    >
+      {/* Drag handle appears when hovering over button */}
+      <div 
+        className={`absolute top-0 right-0 -translate-y-full p-2 mb-1 bg-gray-800 text-white rounded-md opacity-0 transition-opacity ${isOpen ? 'pointer-events-none' : 'group-hover:opacity-80'}`}
+        onPointerDown={startDrag}
       >
-        {isOpen ? (
-          <X className="text-white h-6 w-6" />
-        ) : (
-          <MessageCircle className="text-white h-6 w-6" />
-        )}
-      </motion.button>
+        <Move className="h-4 w-4" />
+      </div>
+
+      {/* Floating button */}
+      <motion.div className="group relative">
+        <motion.button
+          className={`flex items-center justify-center w-14 h-14 rounded-full shadow-lg ${
+            isOpen ? 'bg-gray-700' : 'bg-flex-gradient'
+          } relative z-10`}
+          onClick={toggleChatbot}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          onPointerDown={!isOpen ? startDrag : undefined}
+        >
+          {isOpen ? (
+            <X className="text-white h-6 w-6" />
+          ) : (
+            <MessageCircle className="text-white h-6 w-6" />
+          )}
+        </motion.button>
+        
+        <div 
+          className="absolute inset-0 rounded-full cursor-move opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          onPointerDown={startDrag}
+        >
+          <Move className="h-4 w-4 text-white bg-gray-700/80 rounded-full p-0.5" />
+        </div>
+      </motion.div>
 
       {/* Glow effect when active */}
       <AnimatePresence>
@@ -435,7 +473,7 @@ const ChatbotAssistant = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 
