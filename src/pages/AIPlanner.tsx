@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AIPlannerController } from '../controllers/AIPlannerController';
@@ -7,9 +8,7 @@ import Navbar from '../components/Navbar';
 import PlannerHeader from '../components/ai-planner/PlannerHeader';
 import PreferencesForm from '../components/ai-planner/PreferencesForm';
 import GeneratedPlan from '../components/ai-planner/GeneratedPlan';
-import ChatPlannerFlow from '../components/ai-planner/ChatPlannerFlow';
 import { OnboardingData } from './Onboarding';
-import { motion } from 'framer-motion';
 
 const AIPlanner = () => {
   const navigate = useNavigate();
@@ -19,23 +18,27 @@ const AIPlanner = () => {
   const [generatedPlan, setGeneratedPlan] = useState<AIGeneratedPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
-  const [useChatInterface, setUseChatInterface] = useState(true);
 
+  // Check for onboarding data on component mount
   useEffect(() => {
     const onboardingDataStr = localStorage.getItem('onboardingData');
     if (onboardingDataStr) {
       try {
         const onboardingData: OnboardingData = JSON.parse(onboardingDataStr);
         
+        // Convert onboarding data to planner preferences
         const convertedPreferences = convertOnboardingDataToPreferences(onboardingData);
         setPreferences(prev => ({
           ...prev,
           ...convertedPreferences
         }));
         
+        // Generate a plan automatically if coming from onboarding
         const fromOnboarding = localStorage.getItem('fromOnboarding');
         if (fromOnboarding === 'true') {
+          // Clear the flag to prevent auto-generation on future visits
           localStorage.removeItem('fromOnboarding');
+          // Auto-generate plan with a small delay to allow UI to render
           setTimeout(() => {
             generatePlan();
           }, 500);
@@ -46,9 +49,11 @@ const AIPlanner = () => {
     }
   }, []);
 
+  // Convert onboarding data to planner preferences
   const convertOnboardingDataToPreferences = (data: OnboardingData): Partial<UserPreferences> => {
     const preferences: Partial<UserPreferences> = {};
     
+    // Set wake up time based on user's time commitment
     if (data.timeCommitment) {
       switch (data.timeCommitment) {
         case 'less-than-30':
@@ -74,6 +79,7 @@ const AIPlanner = () => {
       }
     }
     
+    // Set primary goal based on user's selected goal
     if (data.goal) {
       switch (data.goal) {
         case 'productivity':
@@ -91,6 +97,7 @@ const AIPlanner = () => {
       }
     }
     
+    // Set sleep time (default to 8 hours after wake up)
     if (preferences.wakeUpTime) {
       const [hours] = preferences.wakeUpTime.split(':').map(Number);
       const sleepHour = (hours + 16) % 24;
@@ -116,17 +123,11 @@ const AIPlanner = () => {
     }));
   };
 
-  const updatePreferences = (newPrefs: Partial<UserPreferences>) => {
-    setPreferences(prev => ({
-      ...prev,
-      ...newPrefs
-    }));
-  };
-
   const generatePlan = async () => {
     setIsGenerating(true);
     
     try {
+      // Get onboarding data if available
       const onboardingDataStr = localStorage.getItem('onboardingData');
       let onboardingData: OnboardingData | null = null;
       
@@ -138,6 +139,7 @@ const AIPlanner = () => {
         }
       }
       
+      // Pass both preferences and onboarding data for more personalized plan
       const plan = await AIPlannerController.generatePlan(preferences, onboardingData);
       setGeneratedPlan(plan);
       setIsEditing(false);
@@ -169,10 +171,6 @@ const AIPlanner = () => {
     }, 1500);
   };
 
-  const toggleInterface = () => {
-    setUseChatInterface(!useChatInterface);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-green-50">
       <Navbar />
@@ -180,49 +178,15 @@ const AIPlanner = () => {
         <div className="flex flex-col gap-8 max-w-4xl mx-auto">
           <PlannerHeader />
 
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={toggleInterface}
-              className="text-sm text-flex-green underline"
-            >
-              Switch to {useChatInterface ? 'form' : 'chat'} interface
-            </button>
-          </div>
-
-          {isEditing ? (
-            useChatInterface ? (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ChatPlannerFlow
-                  preferences={preferences}
-                  onUpdatePreferences={updatePreferences}
-                  onComplete={generatePlan}
-                  isGenerating={isGenerating}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                <PreferencesForm
-                  preferences={preferences}
-                  isEditing={isEditing}
-                  isGenerating={isGenerating}
-                  onInputChange={handleInputChange}
-                  onNumberChange={handleNumberChange}
-                  onGeneratePlan={generatePlan}
-                  hasGeneratedPlan={!!generatedPlan}
-                />
-              </motion.div>
-            )
-          ) : null}
+          <PreferencesForm
+            preferences={preferences}
+            isEditing={isEditing}
+            isGenerating={isGenerating}
+            onInputChange={handleInputChange}
+            onNumberChange={handleNumberChange}
+            onGeneratePlan={generatePlan}
+            hasGeneratedPlan={!!generatedPlan}
+          />
 
           {generatedPlan && (
             <GeneratedPlan
