@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoController } from '../controllers/TodoController';
@@ -14,7 +13,8 @@ import {
   ChevronDown, 
   Edit,
   ArrowUpDown,
-  Plus
+  Plus,
+  CheckCircle
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import ChatbotAssistant from '../components/ChatbotAssistant';
@@ -24,7 +24,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 
-// Task priority options with their colors
 const PRIORITY_CONFIG = {
   low: { 
     label: 'Low', 
@@ -43,10 +42,8 @@ const PRIORITY_CONFIG = {
   }
 };
 
-// Task duration options
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 
-// Enhanced Todo type with additional properties
 interface EnhancedTodo extends Todo {
   priority: 'low' | 'medium' | 'high';
   duration: number; // in minutes
@@ -58,11 +55,9 @@ const FlowTasks = () => {
   const [currentTodo, setCurrentTodo] = useState<EnhancedTodo | null>(null);
   const queryClient = useQueryClient();
 
-  // Fetch todos using React Query
   const { data: todos = [], isLoading } = useQuery({
     queryKey: ['todos'],
     queryFn: () => TodoController.getTodos().then(todos => 
-      // Convert basic todos to enhanced todos with default values if needed
       todos.map(todo => ({
         ...todo,
         priority: (todo as any).priority || 'medium',
@@ -71,7 +66,6 @@ const FlowTasks = () => {
     )
   });
 
-  // Add todo mutation
   const addTodoMutation = useMutation({
     mutationFn: (newTodo: CreateTodoInput & { priority: string, duration: number }) => 
       TodoController.createTodo(newTodo as any),
@@ -85,7 +79,6 @@ const FlowTasks = () => {
     }
   });
 
-  // Toggle todo completion mutation
   const toggleTodoMutation = useMutation({
     mutationFn: ({ id, completed }: { id: string; completed: boolean }) => 
       TodoController.updateTodo(id, { completed }),
@@ -94,7 +87,6 @@ const FlowTasks = () => {
     }
   });
 
-  // Update todo mutation
   const updateTodoMutation = useMutation({
     mutationFn: (todo: EnhancedTodo) => 
       TodoController.updateTodo(todo.id, todo as any),
@@ -108,7 +100,6 @@ const FlowTasks = () => {
     }
   });
 
-  // Delete todo mutation
   const deleteTodoMutation = useMutation({
     mutationFn: (id: string) => TodoController.deleteTodo(id),
     onSuccess: () => {
@@ -177,7 +168,6 @@ const FlowTasks = () => {
           Adapt and evolve your daily workflow
         </p>
         
-        {/* Add Todo Form */}
         <Card className="mb-8 shadow-sm border-gray-200">
           <CardContent className="pt-6">
             <form onSubmit={handleAddTodo} className="flex gap-2">
@@ -200,7 +190,6 @@ const FlowTasks = () => {
           </CardContent>
         </Card>
         
-        {/* Loading State */}
         {isLoading && (
           <div className="text-center py-8">
             <div className="animate-pulse flex flex-col items-center gap-4">
@@ -210,12 +199,11 @@ const FlowTasks = () => {
           </div>
         )}
         
-        {/* Empty State */}
         {!isLoading && todos.length === 0 && (
           <Card className="py-12 flex flex-col items-center justify-center bg-white/50">
             <div className="text-center p-6 max-w-sm mx-auto">
               <div className="mb-4 bg-flex-green-light p-3 rounded-full inline-block">
-                <CheckCircle2 className="h-6 w-6 text-flex-green" />
+                <CheckCircle className="h-6 w-6 text-flex-green" />
               </div>
               <h3 className="text-xl font-semibold mb-2">No tasks yet</h3>
               <p className="text-gray-500 mb-4">
@@ -232,7 +220,6 @@ const FlowTasks = () => {
           </Card>
         )}
         
-        {/* Todo List */}
         {!isLoading && todos.length > 0 && (
           <motion.div 
             className="space-y-3"
@@ -318,7 +305,6 @@ const FlowTasks = () => {
         )}
       </div>
 
-      {/* Task Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -382,7 +368,6 @@ const FlowTasks = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Chatbot Assistant */}
       <ChatbotAssistant />
     </div>
   );
