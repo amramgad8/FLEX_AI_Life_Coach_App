@@ -34,7 +34,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Link to="/ai-planner" className="cta-button">
+              <Link to="/onboarding" className="cta-button">
                 Start Your Journey
               </Link>
               <Link to="/flow-tasks" className="flex items-center justify-center px-6 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors duration-300">

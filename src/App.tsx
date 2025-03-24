@@ -13,6 +13,8 @@ import Blog from "./pages/Blog";
 import Focus from "./pages/Focus";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
+import Onboarding from "./pages/Onboarding";
+import EisenhowerMatrixView from "./pages/EisenhowerMatrixView";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/focus" element={<Focus />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/about" element={<About />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/eisenhower" element={<EisenhowerMatrixView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
