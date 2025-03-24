@@ -15,10 +15,4 @@ export interface EnhancedTodo extends Todo {
   priority: 'low' | 'medium' | 'high';
   duration: number; // in minutes
   dueDate?: Date;
-  startTime?: Date;
-  endTime?: Date;
-  description?: string;
 }
-
-export type CreateEnhancedTodoInput = Omit<EnhancedTodo, 'id' | 'createdAt'>;
-export type UpdateEnhancedTodoInput = Partial<Omit<EnhancedTodo, 'id' | 'createdAt'>>;
