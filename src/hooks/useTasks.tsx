@@ -117,7 +117,9 @@ export const useTasks = () => {
     createTask: createTaskMutation.mutate,
     updateTask: updateTaskMutation.mutate,
     deleteTask: deleteTaskMutation.mutate,
-    moveTask: moveTaskMutation.mutate,
+    moveTask: (taskId: string, date: Date) => {
+      moveTaskMutation.mutate({ taskId, newDate: date });
+    },
     completeTask: (task: EnhancedTodo, completed: boolean) => {
       updateTaskMutation.mutate({ id: task.id, completed });
     },

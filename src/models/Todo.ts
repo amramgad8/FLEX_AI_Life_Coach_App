@@ -115,3 +115,19 @@ export interface EnhancedTodo extends Todo {
 
 export type CreateEnhancedTodoInput = Omit<EnhancedTodo, 'id' | 'createdAt'>;
 export type UpdateEnhancedTodoInput = Partial<Omit<EnhancedTodo, 'id' | 'createdAt'>>;
+
+// Filters for tasks
+export interface TaskFilters {
+  search: string;
+  priorities: TaskPriority[];
+  categories: TaskCategory[];
+  dateRange: {
+    from?: Date;
+    to?: Date;
+  };
+  durationRange: {
+    min?: number;
+    max?: number;
+  };
+  showCompleted: boolean;
+}
