@@ -1,141 +1,280 @@
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Command, Cpu, Calendar, Layout, Settings, Clock, GitMerge, BookOpen, Users, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-
-interface NavItem {
-  name: string;
-  href: string;
-  icon: React.ReactNode;
-}
+import { useState, useEffect } from 'react';
+import { Menu, X, Sparkles, Bell, Settings, Flame } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import AuthModal from './auth/AuthModal';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-  const isMobile = useIsMobile();
-  
-  const navItems: NavItem[] = [
-    { name: 'Dashboard', href: '/dashboard', icon: <Layout className="h-5 w-5" /> },
-    { name: 'Tasks', href: '/todo', icon: <Calendar className="h-5 w-5" /> },
-    { name: 'AI Planner', href: '/ai-planner', icon: <Command className="h-5 w-5" /> },
-    { name: 'Pomodoro', href: '/pomodoro', icon: <Clock className="h-5 w-5" /> },
-    { name: 'Eisenhower', href: '/eisenhower', icon: <GitMerge className="h-5 w-5" /> },
-    { name: 'Focus', href: '/focus', icon: <Cpu className="h-5 w-5" /> },
-    { name: 'Blog', href: '/blog', icon: <BookOpen className="h-5 w-5" /> },
-    { name: 'About', href: '/about', icon: <Users className="h-5 w-5" /> },
-    { name: 'Settings', href: '/settings', icon: <Settings className="h-5 w-5" /> },
-  ];
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
-  // Function to toggle the mobile menu
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const openAuthModal = () => {
+    setIsAuthModalOpen(true);
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
   };
 
-  // Function to check if a nav item is active
-  const isActive = (href: string) => {
-    return location.pathname === href;
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo & Desktop Navigation */}
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">FlexTask</span>
-              </Link>
-            </div>
-            
-            {/* Desktop Navigation */}
-            {!isMobile && (
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "inline-flex items-center px-1 pt-1 text-sm font-medium",
-                      isActive(item.href)
-                        ? "border-b-2 border-indigo-500 text-gray-900"
-                        : "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/80 backdrop-blur-md shadow-sm py-3'
+          : 'bg-transparent py-5'
+      }`}
+    >
+      <div className="container mx-auto px-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-2">
+          <img 
+            src="/lovable-uploads/73e4c415-eb5f-48db-a438-94ea38c84838.png" 
+            alt="Flex Logo" 
+            className="h-10 w-auto"
+          />
+          <span className="text-xl font-bold bg-clip-text text-transparent bg-flex-gradient">
+            Flex
+          </span>
+        </Link>
+
+        {/* Streak Tracker */}
+        <div className="hidden md:flex items-center space-x-1 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
+          <Flame className="h-5 w-5 text-flex-orange" />
+          <span className="text-sm font-semibold text-flex-text">
+            5 Day Streak
+          </span>
+        </div>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6">
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+          <Link to="/dashboard" className="nav-link">
+            Dashboard
+          </Link>
+          <Link to="/ai-planner" className="nav-link flex items-center gap-1">
+            <Sparkles className="h-4 w-4 text-flex-yellow-dark" />
+            AI Agent
+          </Link>
+          <Link to="/todo" className="nav-link">
+            Tasks
+          </Link>
+          <Link to="/focus" className="nav-link">
+            Focus
+          </Link>
+          <Link to="/blog" className="nav-link">
+            Blog
+          </Link>
+        </nav>
+
+        <div className="hidden md:flex items-center space-x-3">
+          {/* Notification Icon */}
+          <button 
+            onClick={toggleNotifications} 
+            className="p-2 rounded-full hover:bg-gray-100 text-foreground/80 hover:text-foreground transition-colors relative"
+          >
+            <Bell size={20} />
+            <span className="absolute top-0 right-0 bg-flex-orange w-2 h-2 rounded-full"></span>
+          </button>
+          
+          {/* Settings Icon */}
+          <Link to="/settings" className="p-2 rounded-full hover:bg-gray-100 text-foreground/80 hover:text-foreground transition-colors">
+            <Settings size={20} />
+          </Link>
+          
+          <button 
+            onClick={openAuthModal}
+            className="px-4 py-2 rounded-full text-foreground/80 hover:text-foreground transition-colors"
+          >
+            Login
+          </button>
+          <Link
+            to="/ai-planner"
+            className="cta-button"
+          >
+            Start Your Journey
+          </Link>
+        </div>
+
+        {/* Mobile menu button */}
+        <div className="md:hidden flex items-center space-x-3">
+          {/* Notification Icon */}
+          <button 
+            onClick={toggleNotifications} 
+            className="p-2 rounded-full hover:bg-gray-100 text-foreground/80 hover:text-foreground transition-colors relative"
+          >
+            <Bell size={20} />
+            <span className="absolute top-0 right-0 bg-flex-orange w-2 h-2 rounded-full"></span>
+          </button>
+          
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 text-foreground focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              <X size={24} className="animate-scale" />
+            ) : (
+              <Menu size={24} className="animate-scale" />
             )}
-          </div>
-          
-          {/* Mobile menu button */}
-          <div className="-mr-2 flex items-center sm:hidden">
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Open main menu</span>
-              {!isOpen ? (
-                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              ) : (
-                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              )}
-            </button>
-          </div>
-          
-          {/* Right side actions (desktop) */}
-          {!isMobile && (
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
-              <Link to="/onboarding">
-                <Button variant="outline" size="sm" className="ml-4 flex items-center">
-                  Get Started
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          )}
+          </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      <div className={`${isOpen ? 'block' : 'hidden'} sm:hidden`}>
-        <div className="pt-2 pb-3 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center px-3 py-2 text-base font-medium",
-                isActive(item.href)
-                  ? "bg-indigo-50 border-l-4 border-indigo-500 text-indigo-700"
-                  : "border-l-4 border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-              )}
-              onClick={() => setIsOpen(false)}
-            >
-              <span className="mr-3">{item.icon}</span>
-              {item.name}
-            </Link>
-          ))}
-          <div className="px-4 py-3">
-            <Link to="/onboarding" onClick={() => setIsOpen(false)}>
-              <Button className="w-full">
-                Get Started
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            </Link>
+      {/* Notification Panel */}
+      {showNotifications && (
+        <div className="absolute right-4 md:right-40 top-20 z-50 bg-white rounded-xl shadow-lg w-80 overflow-hidden">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-flex-text">Notifications</h3>
+          </div>
+          <div className="max-h-96 overflow-y-auto">
+            <div className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-flex-green/10 rounded-full">
+                  <Flame className="h-5 w-5 text-flex-green" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-flex-text">5 Day Streak!</p>
+                  <p className="text-xs text-gray-500 mt-1">You're on fire! Keep up the great work.</p>
+                  <p className="text-xs text-gray-400 mt-2">2 hours ago</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-flex-yellow/10 rounded-full">
+                  <Sparkles className="h-5 w-5 text-flex-yellow" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-flex-text">New AI Plan Ready</p>
+                  <p className="text-xs text-gray-500 mt-1">Your customized productivity plan is ready to view.</p>
+                  <p className="text-xs text-gray-400 mt-2">Yesterday</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 hover:bg-gray-50 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-flex-orange/10 rounded-full">
+                  <Bell className="h-5 w-5 text-flex-orange" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-flex-text">Task Reminder</p>
+                  <p className="text-xs text-gray-500 mt-1">Complete your morning routine tasks.</p>
+                  <p className="text-xs text-gray-400 mt-2">2 days ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 bg-gray-50 text-center">
+            <button className="text-sm text-flex-green hover:underline">Mark all as read</button>
           </div>
         </div>
+      )}
+
+      {/* Mobile Navigation */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 bg-white transform ${
+          isMenuOpen
+            ? 'translate-x-0 opacity-100'
+            : 'translate-x-full opacity-0'
+        } transition-all duration-300 ease-in-out pt-20`}
+      >
+        <nav className="flex flex-col items-center space-y-6 p-8">
+          <Link 
+            to="/" 
+            className="text-xl nav-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/dashboard" 
+            className="text-xl nav-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Dashboard
+          </Link>
+          <Link 
+            to="/ai-planner" 
+            className="text-xl nav-link flex items-center gap-2"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <Sparkles className="h-5 w-5 text-flex-yellow-dark" />
+            AI Agent
+          </Link>
+          <Link 
+            to="/todo" 
+            className="text-xl nav-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Tasks
+          </Link>
+          <Link 
+            to="/focus" 
+            className="text-xl nav-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Focus
+          </Link>
+          <Link 
+            to="/blog" 
+            className="text-xl nav-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Blog
+          </Link>
+          <Link 
+            to="/settings" 
+            className="text-xl nav-link flex items-center gap-2"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <Settings className="h-5 w-5" />
+            Settings
+          </Link>
+          <div className="flex flex-col items-center space-y-4 pt-6 w-full">
+            <button 
+              onClick={() => {
+                setIsMenuOpen(false);
+                openAuthModal();
+              }}
+              className="w-full text-center px-4 py-2 rounded-full text-foreground/80 hover:text-foreground transition-colors"
+            >
+              Login
+            </button>
+            <Link
+              to="/ai-planner"
+              className="w-full text-center cta-button"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Start Your Journey
+            </Link>
+          </div>
+        </nav>
       </div>
-    </nav>
+
+      {/* Authentication Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+    </header>
   );
 };
 
