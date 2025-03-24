@@ -9,3 +9,10 @@ export interface Todo {
 
 export type CreateTodoInput = Omit<Todo, 'id' | 'createdAt'>;
 export type UpdateTodoInput = Partial<Omit<Todo, 'id' | 'createdAt'>>;
+
+// Enhanced Todo with additional fields
+export interface EnhancedTodo extends Todo {
+  priority: 'low' | 'medium' | 'high';
+  duration: number; // in minutes
+  dueDate?: Date;
+}
