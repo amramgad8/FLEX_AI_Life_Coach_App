@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoController } from '../controllers/TodoController';
@@ -22,7 +23,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { Label } from '@/components/ui/label';
 
 const PRIORITY_CONFIG = {
   low: { 
@@ -314,7 +316,7 @@ const FlowTasks = () => {
           {currentTodo && (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <FormLabel>Task</FormLabel>
+                <Label>Task</Label>
                 <Input 
                   value={currentTodo.title} 
                   onChange={(e) => setCurrentTodo({...currentTodo, title: e.target.value})} 
@@ -322,7 +324,7 @@ const FlowTasks = () => {
               </div>
               
               <div className="space-y-2">
-                <FormLabel>Priority</FormLabel>
+                <Label>Priority</Label>
                 <div className="flex space-x-2">
                   {(Object.keys(PRIORITY_CONFIG) as Array<keyof typeof PRIORITY_CONFIG>).map((priority) => (
                     <Button
@@ -339,7 +341,7 @@ const FlowTasks = () => {
               </div>
               
               <div className="space-y-2">
-                <FormLabel>Duration (minutes)</FormLabel>
+                <Label>Duration (minutes)</Label>
                 <div className="flex flex-wrap gap-2">
                   {DURATIONS.map((duration) => (
                     <Button
