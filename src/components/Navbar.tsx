@@ -62,24 +62,24 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="nav-link">
+        <nav className="hidden md:flex items-center justify-center space-x-8">
+          <Link to="/" className="nav-link hover:text-flex-green transition-colors">
             Home
           </Link>
-          <Link to="/dashboard" className="nav-link">
+          <Link to="/dashboard" className="nav-link hover:text-flex-green transition-colors">
             Dashboard
           </Link>
-          <Link to="/ai-planner" className="nav-link flex items-center gap-1">
+          <Link to="/ai-planner" className="nav-link flex items-center gap-2 hover:text-flex-green transition-colors">
             <Sparkles className="h-4 w-4 text-flex-yellow-dark" />
             AI Agent
           </Link>
-          <Link to="/todo" className="nav-link">
+          <Link to="/todo" className="nav-link hover:text-flex-green transition-colors">
             Tasks
           </Link>
-          <Link to="/focus" className="nav-link">
+          <Link to="/focus" className="nav-link hover:text-flex-green transition-colors">
             Focus
           </Link>
-          <Link to="/blog" className="nav-link">
+          <Link to="/blog" className="nav-link hover:text-flex-green transition-colors">
             Blog
           </Link>
         </nav>

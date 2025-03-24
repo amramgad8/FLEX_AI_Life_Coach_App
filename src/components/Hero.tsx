@@ -16,7 +16,7 @@ const Hero = () => {
               transition={{ duration: 0.5 }}
             >
               Adapt, Evolve, <br/>
-              <span className="bg-clip-text text-transparent bg-flex-gradient">
+              <span className="text-flex-green">
                 Flourish.
               </span>
             </motion.h1>
