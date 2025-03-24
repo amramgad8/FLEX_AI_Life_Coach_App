@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Timer, Play, Pause, RotateCcw, Square, Clock, AlertTriangle, CheckCircle, ArrowRightCircle } from 'lucide-react';
+import PomodoroTaskIntegration from '@/components/focus/PomodoroTaskIntegration';
+import { useTasks } from '@/hooks/useTasks';
+import { useNavigate } from 'react-router-dom';
 
 // Sample tasks for Eisenhower Matrix
 const sampleTasks = {
@@ -38,14 +41,25 @@ const Focus = () => {
   const [currentRound, setCurrentRound] = useState(1);
   const [totalRounds, setTotalRounds] = useState(4);
   const [showNotifications, setShowNotifications] = useState(true);
+  const [activeTaskId, setActiveTaskId] = useState<string | undefined>(undefined);
   
   // Eisenhower Matrix state
   const [matrix, setMatrix] = useState(sampleTasks);
   const [draggingTask, setDraggingTask] = useState(null);
-  
+  const navigate = useNavigate();
+  const { logTimeSpent } = useTasks();
+
   // Timer intervals
   const timerRef = useRef(null);
   const initialTime = useRef(25 * 60);
+  
+  // Get the session length in minutes based on timer mode
+  const getSessionLength = () => {
+    if (timerMode === 'pomodoro') return 25;
+    if (timerMode === 'shortBreak') return 5;
+    if (timerMode === 'longBreak') return 15;
+    return 0;
+  };
   
   // Handle timer mode change
   const handleModeChange = (mode) => {
@@ -92,6 +106,28 @@ const Focus = () => {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
   
+  // Handle task selection for focus
+  const handleSelectTask = (taskId: string) => {
+    setActiveTaskId(taskId);
+  };
+  
+  // Handle session completion
+  const handleSessionComplete = (taskId: string, minutes: number) => {
+    // Log the time spent on the task
+    logTimeSpent(taskId, minutes);
+    
+    // Reset the timer
+    resetTimer();
+    if (timerMode === 'pomodoro') {
+      handleModeChange('shortBreak');
+    }
+  };
+  
+  // Navigate to Eisenhower Matrix
+  const goToEisenhowerMatrix = () => {
+    navigate('/eisenhower');
+  };
+  
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -121,6 +157,11 @@ const Focus = () => {
               if (showNotifications) {
                 // This would be a browser notification in a real app
                 console.log(`${timerMode === 'pomodoro' ? 'Work session' : 'Break'} completed!`);
+              }
+              
+              // Log time if in pomodoro mode and a task is selected
+              if (timerMode === 'pomodoro' && activeTaskId) {
+                logTimeSpent(activeTaskId, 25); // Log 25 minutes
               }
               
               // Move to next session
@@ -154,7 +195,7 @@ const Focus = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isActive, timerMode, currentRound, totalRounds, showNotifications]);
+  }, [isActive, timerMode, currentRound, totalRounds, showNotifications, activeTaskId, logTimeSpent]);
   
   // Handle drag and drop for Eisenhower Matrix
   const handleDragStart = (quadrant, task) => {
@@ -319,6 +360,14 @@ const Focus = () => {
                 </CardFooter>
               </Card>
               
+              {/* Task Integration for Pomodoro */}
+              <PomodoroTaskIntegration 
+                onSelectTask={handleSelectTask}
+                onSessionComplete={handleSessionComplete}
+                activeTaskId={activeTaskId}
+                sessionLength={getSessionLength()}
+              />
+              
               {/* Productivity Tips */}
               <Card className="mt-6 bg-gradient-to-r from-flex-green/5 to-flex-yellow/5 shadow-sm">
                 <CardHeader>
@@ -456,8 +505,12 @@ const Focus = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full text-sm">
-                    Add New Task
+                  <Button 
+                    variant="outline" 
+                    className="w-full text-sm"
+                    onClick={goToEisenhowerMatrix}
+                  >
+                    Go to Full Eisenhower Matrix
                   </Button>
                 </CardFooter>
               </Card>
