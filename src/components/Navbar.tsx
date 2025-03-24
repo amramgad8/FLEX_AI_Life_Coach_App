@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Command, Cpu, Calendar, Layout, Settings, Clock, GitMerge, BookOpen, Users, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NavItem {
   name: string;
@@ -15,7 +15,7 @@ interface NavItem {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   const navItems: NavItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: <Layout className="h-5 w-5" /> },
