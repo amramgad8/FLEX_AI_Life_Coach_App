@@ -37,8 +37,8 @@ const Hero = () => {
               <Link to="/ai-planner" className="cta-button">
                 Start Your Journey
               </Link>
-              <Link to="/dashboard" className="flex items-center justify-center px-6 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors duration-300">
-                See Dashboard
+              <Link to="/flow-tasks" className="flex items-center justify-center px-6 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors duration-300">
+                Try Flow Tasks
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
             </motion.div>
