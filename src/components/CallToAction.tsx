@@ -76,6 +76,17 @@ const CallToAction = () => {
           <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white/20 rounded-full"></div>
           <div className="absolute bottom-10 right-10 w-40 h-40 border-2 border-white/10 rounded-full"></div>
           <div className="absolute top-1/4 right-1/4 w-12 h-12 bg-white/10 rounded-full"></div>
+          
+          {/* Added Flex branding element */}
+          <div className="absolute bottom-12 left-12 w-24 h-24">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="opacity-20">
+              <path 
+                fill="#FFFFFF" 
+                d="M45.3,-75.3C58.3,-67.9,68.4,-54.3,76,-38.9C83.6,-23.5,88.8,-6.2,86.7,10.3C84.6,26.7,75.1,42.3,61.8,52.2C48.4,62.1,31.1,66.2,14.5,68.5C-2.1,70.7,-18.1,71.1,-33.8,67C-49.5,62.9,-64.9,54.3,-72.8,41.1C-80.8,27.9,-81.3,10.1,-78.1,-6.3C-75,-22.7,-68.3,-37.7,-57.7,-47.9C-47.1,-58,-32.7,-63.3,-18.4,-69.6C-4.1,-75.9,10.2,-83.3,25.7,-83.1C41.3,-82.9,58.1,-75.2,45.3,-75.3Z" 
+                transform="translate(100 100)" 
+              />
+            </svg>
+          </div>
         </div>
       </div>
     </section>

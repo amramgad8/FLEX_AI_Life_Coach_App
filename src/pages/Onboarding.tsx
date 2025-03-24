@@ -77,7 +77,7 @@ const Onboarding = () => {
         { id: "height", label: "Height (cm)", icon: "📏" },
         { id: "weight", label: "Weight (kg)", icon: "⚖️" },
         { id: "age", label: "Age", icon: "📆" },
-        { id: "gender", label: "Gender", icon: "🚻", options: ["Male", "Female", "Prefer not to say"] }
+        { id: "gender", label: "Gender", icon: "🚻", options: ["Male", "Female", "Non-binary", "Prefer not to say"] }
       ]
     },
     {
