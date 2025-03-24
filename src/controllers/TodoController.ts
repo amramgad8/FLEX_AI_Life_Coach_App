@@ -1,5 +1,5 @@
 
-import { Todo, CreateTodoInput, UpdateTodoInput, EnhancedTodo, CreateEnhancedTodoInput } from '../models/Todo';
+import { Todo, CreateTodoInput, UpdateTodoInput, EnhancedTodo, CreateEnhancedTodoInput, UpdateEnhancedTodoInput } from '../models/Todo';
 import { ApiService } from '../services/ApiService';
 
 // This controller interfaces with your FastAPI backend
@@ -69,7 +69,7 @@ export class TodoController {
   }
 
   // Update an existing todo
-  static async updateTodo(id: string, todoInput: UpdateTodoInput): Promise<EnhancedTodo | null> {
+  static async updateTodo(id: string, todoInput: UpdateTodoInput | UpdateEnhancedTodoInput): Promise<EnhancedTodo | null> {
     try {
       if (this.useApi) {
         // Use the API service
@@ -140,6 +140,6 @@ export class TodoController {
 
   // Move a todo to a new date
   static async moveToDate(id: string, newDate: Date): Promise<EnhancedTodo | null> {
-    return this.updateTodo(id, { dueDate: newDate });
+    return this.updateTodo(id, { dueDate: newDate } as UpdateEnhancedTodoInput);
   }
 }
