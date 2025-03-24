@@ -198,14 +198,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             <div>
               <Label>Eisenhower Matrix</Label>
               <Select
-                value={formData.eisenhowerQuadrant || ''}
-                onValueChange={(value) => handleSelectChange('eisenhowerQuadrant', value)}
+                value={formData.eisenhowerQuadrant || 'not-categorized'}
+                onValueChange={(value) => handleSelectChange('eisenhowerQuadrant', value === 'not-categorized' ? undefined : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Categorize in Eisenhower Matrix" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Not categorized</SelectItem>
+                  <SelectItem value="not-categorized">Not categorized</SelectItem>
                   {Object.entries(EISENHOWER_CONFIG).map(([value, { label, description }]) => (
                     <SelectItem key={value} value={value}>
                       {label} - {description}
