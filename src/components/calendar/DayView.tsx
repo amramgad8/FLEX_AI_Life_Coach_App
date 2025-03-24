@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { EnhancedTodo } from '@/models/Todo';
 import TaskItem from './TaskItem';
-import { format } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 import { useDrop } from 'react-dnd';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,12 +42,20 @@ const DayView: React.FC<DayViewProps> = ({
   }
   
   tasks.forEach(task => {
-    const hour = task.startTime 
-      ? new Date(task.startTime).getHours() 
-      : 9; // Default to 9 AM if no time specified
-    
-    if (tasksByHour[hour]) {
-      tasksByHour[hour].push(task);
+    if (task.startTime) {
+      // Use the task's scheduled time
+      const startTime = new Date(task.startTime);
+      const hour = startTime.getHours();
+      
+      if (tasksByHour[hour]) {
+        tasksByHour[hour].push(task);
+      }
+    } else {
+      // Default to 9 AM if no time specified
+      const defaultHour = 9;
+      if (tasksByHour[defaultHour]) {
+        tasksByHour[defaultHour].push(task);
+      }
     }
   });
 
@@ -92,7 +100,12 @@ const DayView: React.FC<DayViewProps> = ({
               ) : (
                 <div 
                   className="h-12 border border-dashed border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 cursor-pointer"
-                  onClick={() => onAddTask(date)}
+                  onClick={() => {
+                    // Create a date object for this specific hour
+                    const newTaskDate = new Date(date);
+                    newTaskDate.setHours(hour, 0, 0, 0);
+                    onAddTask(newTaskDate);
+                  }}
                 >
                   <Plus className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-400 ml-1">Add task</span>

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AIPlannerController } from '../controllers/AIPlannerController';
 import { UserPreferences, AIGeneratedPlan } from '../models/AIPlanner';
@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar';
 import PlannerHeader from '../components/ai-planner/PlannerHeader';
 import PreferencesForm from '../components/ai-planner/PreferencesForm';
 import GeneratedPlan from '../components/ai-planner/GeneratedPlan';
+import { OnboardingData } from './Onboarding';
 
 const AIPlanner = () => {
   const navigate = useNavigate();
@@ -17,6 +18,94 @@ const AIPlanner = () => {
   const [generatedPlan, setGeneratedPlan] = useState<AIGeneratedPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
+
+  // Check for onboarding data on component mount
+  useEffect(() => {
+    const onboardingDataStr = localStorage.getItem('onboardingData');
+    if (onboardingDataStr) {
+      try {
+        const onboardingData: OnboardingData = JSON.parse(onboardingDataStr);
+        
+        // Convert onboarding data to planner preferences
+        const convertedPreferences = convertOnboardingDataToPreferences(onboardingData);
+        setPreferences(prev => ({
+          ...prev,
+          ...convertedPreferences
+        }));
+        
+        // Generate a plan automatically if coming from onboarding
+        const fromOnboarding = localStorage.getItem('fromOnboarding');
+        if (fromOnboarding === 'true') {
+          // Clear the flag to prevent auto-generation on future visits
+          localStorage.removeItem('fromOnboarding');
+          // Auto-generate plan with a small delay to allow UI to render
+          setTimeout(() => {
+            generatePlan();
+          }, 500);
+        }
+      } catch (error) {
+        console.error("Error parsing onboarding data:", error);
+      }
+    }
+  }, []);
+
+  // Convert onboarding data to planner preferences
+  const convertOnboardingDataToPreferences = (data: OnboardingData): Partial<UserPreferences> => {
+    const preferences: Partial<UserPreferences> = {};
+    
+    // Set wake up time based on user's time commitment
+    if (data.timeCommitment) {
+      switch (data.timeCommitment) {
+        case 'less-than-30':
+          preferences.wakeUpTime = "07:30";
+          preferences.breakDuration = 5;
+          preferences.focusPeriods = 2;
+          break;
+        case '30-to-60':
+          preferences.wakeUpTime = "07:00";
+          preferences.breakDuration = 10;
+          preferences.focusPeriods = 3;
+          break;
+        case '60-to-120':
+          preferences.wakeUpTime = "06:30";
+          preferences.breakDuration = 15;
+          preferences.focusPeriods = 4;
+          break;
+        case 'unlimited':
+          preferences.wakeUpTime = "06:00";
+          preferences.breakDuration = 15;
+          preferences.focusPeriods = 5;
+          break;
+      }
+    }
+    
+    // Set primary goal based on user's selected goal
+    if (data.goal) {
+      switch (data.goal) {
+        case 'productivity':
+          preferences.primaryGoal = "Boost Productivity";
+          break;
+        case 'focus':
+          preferences.primaryGoal = "Improve Focus";
+          break;
+        case 'task-management':
+          preferences.primaryGoal = "Better Task Management";
+          break;
+        case 'big-goals':
+          preferences.primaryGoal = "Achieve Big Goals";
+          break;
+      }
+    }
+    
+    // Set sleep time (default to 8 hours after wake up)
+    if (preferences.wakeUpTime) {
+      const [hours] = preferences.wakeUpTime.split(':').map(Number);
+      const sleepHour = (hours + 16) % 24;
+      preferences.sleepTime = `${sleepHour.toString().padStart(2, '0')}:00`;
+    }
+    
+    return preferences;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,7 +127,20 @@ const AIPlanner = () => {
     setIsGenerating(true);
     
     try {
-      const plan = await AIPlannerController.generatePlan(preferences);
+      // Get onboarding data if available
+      const onboardingDataStr = localStorage.getItem('onboardingData');
+      let onboardingData: OnboardingData | null = null;
+      
+      if (onboardingDataStr) {
+        try {
+          onboardingData = JSON.parse(onboardingDataStr);
+        } catch (error) {
+          console.error("Error parsing onboarding data:", error);
+        }
+      }
+      
+      // Pass both preferences and onboarding data for more personalized plan
+      const plan = await AIPlannerController.generatePlan(preferences, onboardingData);
       setGeneratedPlan(plan);
       setIsEditing(false);
       

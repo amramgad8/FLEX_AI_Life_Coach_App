@@ -1,10 +1,9 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, ArrowRight } from 'lucide-react';
 import { OnboardingData } from '@/pages/Onboarding';
+import { useNavigate } from 'react-router-dom';
 
 interface OnboardingSummaryProps {
   data: OnboardingData;
@@ -12,296 +11,124 @@ interface OnboardingSummaryProps {
   onFinish: () => void;
 }
 
-const OnboardingSummary: React.FC<OnboardingSummaryProps> = ({ data, onEdit, onFinish }) => {
-  // Helper to get readable values for summaries
-  const getReadableValue = (field: string, value: string) => {
-    // Map of step indices
-    const stepIndices = {
-      goal: 0,
-      taskManagement: 1,
-      timeCommitment: 2,
-      personalDetails: 3,
-      mbtiType: 4,
-      challenge: 5,
-      motivation: 6
-    };
-    
-    // Maps for human-readable values
-    const goalMap: Record<string, string> = {
-      'productivity': 'Boost Productivity',
-      'focus': 'Improve Focus',
-      'task-management': 'Better Task Management',
-      'big-goals': 'Achieve Big Goals'
-    };
-    
-    const taskManagementMap: Record<string, string> = {
-      'lists': 'Lists & To-Dos',
-      'time-blocking': 'Time Blocking',
-      'goal-oriented': 'Goal-Oriented Plans',
-      'unsure': 'Not Sure Yet'
-    };
-    
-    const timeCommitmentMap: Record<string, string> = {
-      'less-than-30': 'Less than 30 min',
-      '30-to-60': '30 min - 1 hour',
-      '60-to-120': '1-2 hours',
-      'unlimited': 'As much as needed!'
-    };
-    
-    const challengeMap: Record<string, string> = {
-      'consistency': 'Staying consistent',
-      'time-management': 'Time management',
-      'tracking-progress': 'Tracking progress',
-      'procrastination': 'Procrastination'
-    };
-    
-    const motivationMap: Record<string, string> = {
-      'goals': 'Reaching Goals',
-      'rewards': 'Winning Rewards',
-      'streaks': 'Maintaining Streaks',
-      'progress': 'Seeing Progress'
-    };
+const OnboardingSummary = ({ data, onEdit, onFinish }: OnboardingSummaryProps) => {
+  const navigate = useNavigate();
 
-    // Return the appropriate readable value
-    switch (field) {
+  // Format data for summary display
+  const getSummaryItem = (label: string, value: string | undefined, editIndex?: number) => {
+    return (
+      <div className="flex justify-between items-start mb-3 pb-3 border-b last:border-0">
+        <div>
+          <h4 className="font-medium text-gray-700">{label}</h4>
+          <p className="text-muted-foreground">{value || 'Not specified'}</p>
+        </div>
+        
+        {editIndex !== undefined && (
+          <Button variant="ghost" size="sm" onClick={() => onEdit(editIndex)}>
+            Edit
+          </Button>
+        )}
+      </div>
+    );
+  };
+
+  // Get the readable value for each step
+  const getReadableValue = (key: string, value: any) => {
+    if (!value) return 'Not specified';
+    
+    // Some basic transformations
+    switch (key) {
       case 'goal':
-        return goalMap[value] || value;
+        switch(value) {
+          case 'productivity': return 'Boost Productivity';
+          case 'focus': return 'Improve Focus';
+          case 'task-management': return 'Better Task Management';
+          case 'big-goals': return 'Achieve Big Goals';
+          default: return value;
+        }
       case 'taskManagement':
-        return taskManagementMap[value] || value;
+        switch(value) {
+          case 'lists': return 'Lists & To-Dos';
+          case 'time-blocking': return 'Time Blocking';
+          case 'goal-oriented': return 'Goal-Oriented Plans';
+          case 'unsure': return 'Not Sure Yet';
+          default: return value;
+        }
       case 'timeCommitment':
-        return timeCommitmentMap[value] || value;
-      case 'mbtiType':
-        return value;
+        switch(value) {
+          case 'less-than-30': return 'Less than 30 min';
+          case '30-to-60': return '30 min - 1 hour';
+          case '60-to-120': return '1-2 hours';
+          case 'unlimited': return 'As much as needed!';
+          default: return value;
+        }
       case 'challenge':
-        return challengeMap[value] || value;
+        switch(value) {
+          case 'consistency': return 'Staying consistent';
+          case 'time-management': return 'Time management';
+          case 'tracking-progress': return 'Tracking progress';
+          case 'procrastination': return 'Procrastination';
+          default: return value;
+        }
       case 'motivation':
-        return motivationMap[value] || value;
+        switch(value) {
+          case 'goals': return 'Reaching Goals';
+          case 'rewards': return 'Winning Rewards';
+          case 'streaks': return 'Maintaining Streaks';
+          case 'progress': return 'Seeing Progress';
+          default: return value;
+        }
+      case 'personalDetails':
+        if (typeof value === 'object') {
+          return Object.entries(value)
+            .filter(([_, val]) => val)
+            .map(([key, val]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${val}`)
+            .join(', ');
+        }
+        return 'Not specified';
       default:
         return value;
     }
   };
 
-  // Get emoji for field
-  const getFieldEmoji = (field: string) => {
-    switch (field) {
-      case 'goal': return '🎯';
-      case 'taskManagement': return '📋';
-      case 'timeCommitment': return '⏰';
-      case 'personalDetails': return '📊';
-      case 'mbtiType': return '🧠';
-      case 'challenge': return '🚧';
-      case 'motivation': return '✨';
-      default: return '📝';
-    }
+  const goToAIPlanner = () => {
+    // Transfer onboarding data to localStorage for AI Planner to use
+    localStorage.setItem('onboardingData', JSON.stringify(data));
+    // Navigate to the AI Planner page
+    navigate('/ai-planner');
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="shadow-lg border-0 mb-8">
-          <CardHeader className="text-center pb-6 border-b">
-            <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-blue-500">
-              Your Profile Summary
-            </CardTitle>
-            <CardDescription className="text-base mt-2">
-              Review your preferences before we create your personalized experience
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              {/* Goal */}
-              <div className="flex justify-between items-start p-4 rounded-lg bg-green-50">
-                <div>
-                  <h3 className="font-medium text-lg flex items-center">
-                    {getFieldEmoji('goal')} Your Goal
-                  </h3>
-                  <p className="text-gray-700 mt-1">
-                    {getReadableValue('goal', data.goal)}
-                  </p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onEdit(0)}
-                  className="text-blue-600"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              </div>
-
-              {/* Task Management */}
-              <div className="flex justify-between items-start p-4 rounded-lg bg-blue-50">
-                <div>
-                  <h3 className="font-medium text-lg flex items-center">
-                    {getFieldEmoji('taskManagement')} Task Management
-                  </h3>
-                  <p className="text-gray-700 mt-1">
-                    {getReadableValue('taskManagement', data.taskManagement)}
-                  </p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onEdit(1)}
-                  className="text-blue-600"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              </div>
-
-              {/* Time Commitment */}
-              <div className="flex justify-between items-start p-4 rounded-lg bg-purple-50">
-                <div>
-                  <h3 className="font-medium text-lg flex items-center">
-                    {getFieldEmoji('timeCommitment')} Time Commitment
-                  </h3>
-                  <p className="text-gray-700 mt-1">
-                    {getReadableValue('timeCommitment', data.timeCommitment)}
-                  </p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onEdit(2)}
-                  className="text-blue-600"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              </div>
-
-              {/* Personal Details */}
-              {Object.keys(data.personalDetails).length > 0 && (
-                <div className="flex justify-between items-start p-4 rounded-lg bg-orange-50">
-                  <div>
-                    <h3 className="font-medium text-lg flex items-center">
-                      {getFieldEmoji('personalDetails')} Personal Details
-                    </h3>
-                    <div className="text-gray-700 mt-1 space-y-1">
-                      {data.personalDetails.height && (
-                        <p>Height: {data.personalDetails.height} cm</p>
-                      )}
-                      {data.personalDetails.weight && (
-                        <p>Weight: {data.personalDetails.weight} kg</p>
-                      )}
-                      {data.personalDetails.age && (
-                        <p>Age: {data.personalDetails.age}</p>
-                      )}
-                      {data.personalDetails.gender && (
-                        <p>Gender: {data.personalDetails.gender}</p>
-                      )}
-                    </div>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => onEdit(3)}
-                    className="text-blue-600"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                </div>
-              )}
-
-              {/* MBTI Type */}
-              {data.mbtiType && (
-                <div className="flex justify-between items-start p-4 rounded-lg bg-yellow-50">
-                  <div>
-                    <h3 className="font-medium text-lg flex items-center">
-                      {getFieldEmoji('mbtiType')} MBTI Personality Type
-                    </h3>
-                    <p className="text-gray-700 mt-1">
-                      {data.mbtiType === 'unknown' ? 'Not specified' : data.mbtiType}
-                    </p>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => onEdit(4)}
-                    className="text-blue-600"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                </div>
-              )}
-
-              {/* Challenge */}
-              <div className="flex justify-between items-start p-4 rounded-lg bg-red-50">
-                <div>
-                  <h3 className="font-medium text-lg flex items-center">
-                    {getFieldEmoji('challenge')} Biggest Challenge
-                  </h3>
-                  <p className="text-gray-700 mt-1">
-                    {getReadableValue('challenge', data.challenge)}
-                  </p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onEdit(5)}
-                  className="text-blue-600"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              </div>
-
-              {/* Motivation */}
-              <div className="flex justify-between items-start p-4 rounded-lg bg-green-50">
-                <div>
-                  <h3 className="font-medium text-lg flex items-center">
-                    {getFieldEmoji('motivation')} Motivation
-                  </h3>
-                  <p className="text-gray-700 mt-1">
-                    {getReadableValue('motivation', data.motivation)}
-                  </p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onEdit(6)}
-                  className="text-blue-600"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Completion Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+    <Card className="max-w-xl mx-auto">
+      <CardHeader>
+        <CardTitle className="text-2xl">Your Personalized Profile</CardTitle>
+        <CardDescription>Here's a summary of your preferences</CardDescription>
+      </CardHeader>
+      
+      <CardContent className="space-y-1">
+        {getSummaryItem('Your Goal', getReadableValue('goal', data.goal), 0)}
+        {getSummaryItem('Task Management', getReadableValue('taskManagement', data.taskManagement), 1)}
+        {getSummaryItem('Time Commitment', getReadableValue('timeCommitment', data.timeCommitment), 2)}
+        {getSummaryItem('Personal Details', getReadableValue('personalDetails', data.personalDetails), 3)}
+        {getSummaryItem('MBTI Personality Type', data.mbtiType || 'Not specified', 4)}
+        {getSummaryItem('Biggest Challenge', getReadableValue('challenge', data.challenge), 5)}
+        {getSummaryItem('Motivation', getReadableValue('motivation', data.motivation), 6)}
+      </CardContent>
+      
+      <CardFooter className="flex flex-col gap-3">
+        <Button onClick={onFinish} className="w-full">
+          Complete & Go to Dashboard
+        </Button>
+        
+        <Button 
+          onClick={goToAIPlanner} 
+          variant="default" 
+          className="w-full bg-green-600 hover:bg-green-700"
         >
-          <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-blue-50">
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold mb-4">Ready to start your productivity journey?</h2>
-              <p className="text-gray-700 mb-6">
-                We'll use your preferences to customize your experience and help you achieve your goals.
-              </p>
-              <Button 
-                onClick={onFinish}
-                size="lg" 
-                className="bg-flex-gradient text-white px-8"
-              >
-                Let's Get Started <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-    </div>
+          Get My Personalized Plan with AI
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

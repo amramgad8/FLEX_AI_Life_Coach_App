@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, Check } from 'lucide-react';
+import { CalendarIcon, Clock } from 'lucide-react';
 import {
   EnhancedTodo,
   TaskPriority,
@@ -64,12 +64,37 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     eisenhowerQuadrant: undefined
   });
 
+  // Time selection states
+  const [startHour, setStartHour] = useState<string>("09");
+  const [startMinute, setStartMinute] = useState<string>("00");
+  const [startAmPm, setStartAmPm] = useState<string>("AM");
+
   // Update form when task or selectedDate changes
   useEffect(() => {
     if (task) {
       setFormData({
         ...task
       });
+      
+      // Set time selection fields if task has startTime
+      if (task.startTime) {
+        const date = new Date(task.startTime);
+        let hours = date.getHours();
+        const minutes = date.getMinutes();
+        const ampm = hours >= 12 ? "PM" : "AM";
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12
+        
+        setStartHour(hours.toString().padStart(2, "0"));
+        setStartMinute(minutes.toString().padStart(2, "0"));
+        setStartAmPm(ampm);
+      } else {
+        // Default to 9:00 AM if no start time
+        setStartHour("09");
+        setStartMinute("00");
+        setStartAmPm("AM");
+      }
     } else {
       setFormData({
         title: '',
@@ -81,6 +106,11 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         location: '',
         eisenhowerQuadrant: undefined
       });
+      
+      // Reset to default time
+      setStartHour("09");
+      setStartMinute("00");
+      setStartAmPm("AM");
     }
   }, [task, selectedDate, isOpen]);
 
@@ -116,8 +146,64 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Calculate startTime based on selected time
+    if (formData.dueDate) {
+      const dueDate = new Date(formData.dueDate);
+      let hours = parseInt(startHour, 10);
+      
+      // Convert 12-hour to 24-hour format
+      if (startAmPm === "PM" && hours < 12) {
+        hours += 12;
+      } else if (startAmPm === "AM" && hours === 12) {
+        hours = 0;
+      }
+      
+      const minutes = parseInt(startMinute, 10);
+      
+      // Create start time Date object
+      const startTime = new Date(dueDate);
+      startTime.setHours(hours, minutes, 0, 0);
+      
+      // Calculate end time based on duration
+      const endTime = new Date(startTime);
+      endTime.setMinutes(endTime.getMinutes() + (formData.duration || 30));
+      
+      // Update form data with times
+      setFormData(prev => ({
+        ...prev,
+        startTime,
+        endTime
+      }));
+      
+      // Pass updated form data including times
+      onSave({
+        ...formData,
+        startTime,
+        endTime
+      });
+    } else {
+      onSave(formData);
+    }
   };
+
+  // Generate hours for select
+  const hours = Array.from({ length: 12 }, (_, i) => {
+    const hour = i + 1;
+    return {
+      value: hour.toString().padStart(2, "0"),
+      label: hour.toString()
+    };
+  });
+
+  // Generate minutes for select (in 5-minute increments)
+  const minutes = Array.from({ length: 12 }, (_, i) => {
+    const minute = i * 5;
+    return {
+      value: minute.toString().padStart(2, "0"),
+      label: minute.toString().padStart(2, "0")
+    };
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -254,6 +340,57 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                   </PopoverContent>
                 </Popover>
               </div>
+            </div>
+            
+            {/* Time Selection */}
+            <div>
+              <Label>Start Time</Label>
+              <div className="flex gap-2 items-center mt-1.5">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Select value={startHour} onValueChange={setStartHour}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue placeholder="Hour" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hours.map(hour => (
+                      <SelectItem key={hour.value} value={hour.value}>
+                        {hour.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <span>:</span>
+                
+                <Select value={startMinute} onValueChange={setStartMinute}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue placeholder="Min" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {minutes.map(minute => (
+                      <SelectItem key={minute.value} value={minute.value}>
+                        {minute.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Select value={startAmPm} onValueChange={setStartAmPm}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue placeholder="AM/PM" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="AM">AM</SelectItem>
+                    <SelectItem value="PM">PM</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {formData.startTime && formData.endTime && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Scheduled: {format(new Date(formData.startTime), 'h:mm a')} - {format(new Date(formData.endTime), 'h:mm a')}
+                </p>
+              )}
             </div>
             
             <div>

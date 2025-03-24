@@ -2,7 +2,7 @@
 import React from 'react';
 import { EnhancedTodo, PRIORITY_CONFIG, CATEGORY_CONFIG } from '@/models/Todo';
 import { format } from 'date-fns';
-import { Check, Edit, Trash2, MapPin, AlarmClock } from 'lucide-react';
+import { Check, Edit, Trash2, MapPin, AlarmClock, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
@@ -42,6 +42,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
+
+  // Format the scheduled time if it exists
+  const scheduledTime = task.startTime && task.endTime 
+    ? `${format(new Date(task.startTime), 'h:mm a')} - ${format(new Date(task.endTime), 'h:mm a')}` 
+    : null;
 
   return (
     <div
@@ -103,6 +108,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   </span>
                 )}
                 
+                {scheduledTime && (
+                  <span className="text-xs flex items-center text-gray-500">
+                    <Clock className="h-3 w-3 mr-0.5" />
+                    {scheduledTime}
+                  </span>
+                )}
+                
                 {task.location && (
                   <span className="text-xs flex items-center text-gray-500">
                     <MapPin className="h-3 w-3 mr-0.5" />
@@ -111,6 +123,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 )}
               </div>
             </>
+          )}
+
+          {/* Show scheduled time even in compact mode */}
+          {compact && scheduledTime && (
+            <div className="text-xs flex items-center text-gray-500 mt-0.5">
+              <Clock className="h-3 w-3 mr-0.5" />
+              {scheduledTime}
+            </div>
           )}
         </div>
         
