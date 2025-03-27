@@ -1,4 +1,3 @@
-
 import { Todo, CreateTodoInput, UpdateTodoInput, EnhancedTodo, CreateEnhancedTodoInput, UpdateEnhancedTodoInput, EisenhowerQuadrant } from '../models/Todo';
 import { ApiService } from '../services/ApiService';
 
@@ -147,7 +146,24 @@ export class TodoController {
 
   // Move a todo to a new date
   static async moveToDate(id: string, newDate: Date): Promise<EnhancedTodo | null> {
-    return this.updateTodo(id, { dueDate: newDate } as UpdateEnhancedTodoInput);
+    console.log("Moving task to new date:", newDate);
+    return this.updateTodo(id, { 
+      dueDate: newDate 
+    } as UpdateEnhancedTodoInput);
+  }
+
+  // Move a todo to a specific time slot (update its startTime)
+  static async moveToTimeSlot(id: string, newDateTime: Date): Promise<EnhancedTodo | null> {
+    console.log("Moving task to time slot:", newDateTime);
+    // Create a new date for endTime (1 hour after startTime by default)
+    const endDateTime = new Date(newDateTime);
+    endDateTime.setHours(endDateTime.getHours() + 1);
+    
+    return this.updateTodo(id, { 
+      startTime: newDateTime,
+      endTime: endDateTime,
+      dueDate: newDateTime // Also update the due date to match
+    } as UpdateEnhancedTodoInput);
   }
 
   // Log time spent on a task (for Pomodoro integration)

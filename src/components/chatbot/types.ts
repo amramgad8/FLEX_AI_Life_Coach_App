@@ -1,12 +1,12 @@
-
 import { ReactNode } from 'react';
+
+export type MessageType = 'user' | 'assistant' | 'text' | 'suggestion' | 'alert' | 'insight';
 
 export interface ChatMessage {
   id: string;
   content: string;
-  sender: 'user' | 'assistant';
-  timestamp: Date;
-  type?: 'text' | 'suggestion' | 'alert' | 'insight';
+  type: MessageType;
+  timestamp: string | Date;
 }
 
 export interface AIModelOption {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -29,6 +28,7 @@ const TaskHub = () => {
     updateTask,
     deleteTask,
     moveTask,
+    moveToTimeSlot,
     completeTask,
     filterTasks
   } = useTasks();
@@ -100,6 +100,7 @@ const TaskHub = () => {
             onCompleteTask={completeTask}
             onDeleteTask={(task) => deleteTask(task.id)}
             onDropTask={moveTask}
+            onDropTaskToTimeSlot={moveToTimeSlot}
             onAddTask={handleAddTask}
             onMonthClick={handleMonthClick}
           />

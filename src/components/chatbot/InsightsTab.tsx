@@ -1,4 +1,5 @@
-
+import React from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import ProductivityTips from './ProductivityTips';
 import TaskInsights from './TaskInsights';
 
@@ -6,12 +7,14 @@ interface InsightsTabProps {
   onApplySuggestion: (suggestion: string) => void;
 }
 
-const InsightsTab = ({ onApplySuggestion }: InsightsTabProps) => {
+const InsightsTab: React.FC<InsightsTabProps> = ({ onApplySuggestion }) => {
   return (
-    <div className="h-80 overflow-y-auto">
-      <ProductivityTips onApplySuggestion={onApplySuggestion} />
-      <TaskInsights />
-    </div>
+    <ScrollArea className="h-full">
+      <div className="p-4 space-y-6">
+        <ProductivityTips onApplySuggestion={onApplySuggestion} />
+        <TaskInsights />
+      </div>
+    </ScrollArea>
   );
 };
 

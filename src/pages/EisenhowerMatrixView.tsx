@@ -9,6 +9,8 @@ import { useTasks } from '@/hooks/useTasks';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 
 const EisenhowerMatrixView = () => {
   const { tasks, isLoading } = useTasks();
@@ -34,10 +36,12 @@ const EisenhowerMatrixView = () => {
           <p className="text-center text-gray-600 mb-4">
             Prioritize your tasks based on urgency and importance
           </p>
+          <Link to="/todo">
           <Button onClick={handleAddNewTask} className="mx-auto">
             <Plus className="h-4 w-4 mr-1" />
             Create New Task
           </Button>
+          </Link>
         </motion.div>
         
         <DndProvider backend={HTML5Backend}>

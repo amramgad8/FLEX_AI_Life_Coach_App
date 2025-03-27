@@ -5,6 +5,15 @@ export interface UserPreferences {
   focusPeriods: number;
   breakDuration: number;
   primaryGoal: string;
+  // New fields for enhanced planner
+  focusLength?: string | number;
+  scheduleType?: 'structured' | 'flexible';
+  productivePeriod?: 'morning' | 'afternoon' | 'night' | 'varies';
+  motivationFactors?: string[];
+  insightsEnabled?: string;
+  taskManagementStyle?: 'todo' | 'kanban' | 'pomodoro' | 'calendar';
+  autoTaskDuration?: string;
+  weeklyReviewEnabled?: string;
 }
 
 export interface ScheduleItem {

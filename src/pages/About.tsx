@@ -331,7 +331,7 @@ const About = () => {
           <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
             Join thousands of users who are already using Flex to build better habits, get more done, and achieve their goals.
           </p>
-          <a href="/ai-planner" className="cta-button inline-block">
+          <a href="/onboarding" className="cta-button inline-block">
             Start Your Journey
           </a>
         </div>

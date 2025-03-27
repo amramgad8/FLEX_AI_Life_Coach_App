@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -126,14 +125,25 @@ const PomodoroFocus = () => {
               
               <div className="flex space-x-3">
                 {!isActive ? (
-                  <Button 
-                    onClick={handleStart}
-                    className="gap-2 bg-red-500 hover:bg-red-600"
-                    disabled={!currentTaskId}
-                  >
-                    <Play className="h-4 w-4" />
-                    Start
-                  </Button>
+                  <>
+                    <Button 
+                      onClick={handleStart}
+                      className="gap-2 bg-red-500 hover:bg-red-600"
+                      disabled={!currentTaskId}
+                    >
+                      <Play className="h-4 w-4" />
+                      Start
+                    </Button>
+                    {currentTaskId && (
+                      <Button 
+                        onClick={() => handleCompleteSession(currentTaskId, 25)}
+                        className="gap-2 bg-green-500 hover:bg-green-600"
+                      >
+                        <Check className="h-4 w-4" />
+                        Start Task
+                      </Button>
+                    )}
+                  </>
                 ) : isPaused ? (
                   <Button 
                     onClick={handleResume}

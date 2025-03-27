@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import About from "./pages/About";
 import Onboarding from "./pages/Onboarding";
 import EisenhowerMatrixView from "./pages/EisenhowerMatrixView";
+import Goals from "./pages/Goals";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/eisenhower" element={<EisenhowerMatrixView />} />
+          <Route path="/goals" element={<Goals />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
