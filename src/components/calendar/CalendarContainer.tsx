@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { EnhancedTodo, TaskFilters } from '@/models/Todo';
@@ -25,6 +24,7 @@ interface CalendarContainerProps {
   onCompleteTask: (task: EnhancedTodo, completed: boolean) => void;
   onDeleteTask: (task: EnhancedTodo) => void;
   onDropTask: (taskId: string, date: Date) => void;
+  onDropTaskToTimeSlot?: (taskId: string, dateTime: Date) => void;
   onAddTask: (date: Date) => void;
   onMonthClick: (date: Date) => void;
 }
@@ -45,6 +45,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
   onCompleteTask,
   onDeleteTask,
   onDropTask,
+  onDropTaskToTimeSlot,
   onAddTask,
   onMonthClick
 }) => {
@@ -99,6 +100,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
           onDeleteTask={onDeleteTask}
           onAddTask={handleOpenCreateTask}
           onDropTask={onDropTask}
+          onDropTaskToTimeSlot={onDropTaskToTimeSlot}
           onMonthClick={onMonthClick}
         />
       </div>

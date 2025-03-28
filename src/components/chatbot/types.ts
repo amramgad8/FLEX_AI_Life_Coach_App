@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 
 export interface ChatMessage {
@@ -13,6 +12,7 @@ export interface AIModelOption {
   id: string;
   name: string;
   description: string;
+  capabilities: string[];
+  icon: string;
   className: string;
-  icon: ReactNode;
 }

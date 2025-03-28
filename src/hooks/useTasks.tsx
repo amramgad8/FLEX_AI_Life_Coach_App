@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoController } from '@/controllers/TodoController';
 import { EnhancedTodo, TaskFilters, EisenhowerQuadrant } from '@/models/Todo';
@@ -8,7 +7,6 @@ import { isAfter, isBefore, isSameDay, startOfDay } from 'date-fns';
 
 export const useTasks = () => {
   const queryClient = useQueryClient();
-  
   // Mutations
   const createTaskMutation = useMutation({
     mutationFn: (newTask: Partial<EnhancedTodo>) => 
@@ -58,6 +56,19 @@ export const useTasks = () => {
     }
   });
 
+  // Add moveToTimeSlot mutation for updating task time
+  const moveToTimeSlotMutation = useMutation({
+    mutationFn: ({ taskId, newDateTime }: { taskId: string; newDateTime: Date }) => 
+      TodoController.moveToTimeSlot(taskId, newDateTime),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast({
+        title: "Task scheduled",
+        description: "Your task has been scheduled to a specific time.",
+      });
+    }
+  });
+
   // Time logging mutation (for Pomodoro)
   const logTimeSpentMutation = useMutation({
     mutationFn: ({ taskId, minutes }: { taskId: string; minutes: number }) => 
@@ -102,6 +113,26 @@ export const useTasks = () => {
     queryKey: ['todos'],
     queryFn: () => TodoController.getTodos()
   });
+
+  // Get task by ID
+  const getTaskById = (taskId: string) => {
+    return tasks.find(task => task.id === taskId);
+  };
+  
+  // Update task status
+  const updateTaskStatus = async (taskId: string, status: string) => {
+    try {
+      const task = getTaskById(taskId);
+      if (task) {
+        updateTaskMutation.mutate({ 
+          id: taskId, 
+          completed: status === 'completed'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating task status:', error);
+    }
+  };
 
   // Filter tasks
   const filterTasks = (tasks: EnhancedTodo[], filters: TaskFilters) => {
@@ -170,6 +201,9 @@ export const useTasks = () => {
     moveTask: (taskId: string, date: Date) => {
       moveTaskMutation.mutate({ taskId, newDate: date });
     },
+    moveToTimeSlot: (taskId: string, dateTime: Date) => {
+      moveToTimeSlotMutation.mutate({ taskId, newDateTime: dateTime });
+    },
     completeTask: (task: EnhancedTodo, completed: boolean) => {
       updateTaskMutation.mutate({ id: task.id, completed });
     },
@@ -183,6 +217,8 @@ export const useTasks = () => {
       convertAIPlanToTasksMutation.mutate(planItems);
     },
     filterTasks,
-    getTasksByQuadrant
+    getTasksByQuadrant,
+    getTaskById,
+    updateTaskStatus
   };
 };

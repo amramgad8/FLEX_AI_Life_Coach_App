@@ -46,7 +46,7 @@ const Dashboard = () => {
             <div className="flex gap-2">
               <Button 
                 className="gap-2" 
-                onClick={() => setShowGoalForm(true)}
+                onClick={() => navigate('/Goals')}
               >
                 <PlusCircle className="h-4 w-4" />
                 Add New Goal

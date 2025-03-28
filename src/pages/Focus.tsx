@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -7,13 +6,20 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
-import { Timer, Play, Pause, RotateCcw, Square, Clock, AlertTriangle, CheckCircle, ArrowRightCircle } from 'lucide-react';
+import { Timer, Play, Pause, RotateCcw, Square, Clock, AlertTriangle, CheckCircle, ArrowRightCircle, CheckSquare } from 'lucide-react';
 import PomodoroTaskIntegration from '@/components/focus/PomodoroTaskIntegration';
 import { useTasks } from '@/hooks/useTasks';
 import { useNavigate } from 'react-router-dom';
 
+// Define task type for Eisenhower Matrix
+interface MatrixTask {
+  id: number;
+  title: string;
+  description: string;
+}
+
 // Sample tasks for Eisenhower Matrix
-const sampleTasks = {
+const sampleTasks: Record<string, MatrixTask[]> = {
   urgentImportant: [
     { id: 1, title: 'Complete project proposal', description: 'Deadline tomorrow' },
     { id: 2, title: 'Fix major app bug', description: 'Affecting user experience' }
@@ -45,12 +51,12 @@ const Focus = () => {
   
   // Eisenhower Matrix state
   const [matrix, setMatrix] = useState(sampleTasks);
-  const [draggingTask, setDraggingTask] = useState(null);
+  const [draggingTask, setDraggingTask] = useState<{ quadrant: string; task: MatrixTask } | null>(null);
   const navigate = useNavigate();
   const { logTimeSpent } = useTasks();
 
   // Timer intervals
-  const timerRef = useRef(null);
+  const timerRef = useRef<number | null>(null);
   const initialTime = useRef(25 * 60);
   
   // Get the session length in minutes based on timer mode
@@ -62,7 +68,7 @@ const Focus = () => {
   };
   
   // Handle timer mode change
-  const handleModeChange = (mode) => {
+  const handleModeChange = (mode: string) => {
     setIsActive(false);
     setTimerMode(mode);
     
@@ -100,7 +106,7 @@ const Focus = () => {
   };
   
   // Format time
-  const formatTime = (timeInSeconds) => {
+  const formatTime = (timeInSeconds: number): string => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -136,7 +142,7 @@ const Focus = () => {
   // Timer effect
   useEffect(() => {
     if (isActive) {
-      timerRef.current = setInterval(() => {
+      timerRef.current = window.setInterval(() => {
         setTimeLeft((prev) => {
           if (timerMode === 'stopwatch') {
             // Stopwatch counts up
@@ -147,7 +153,9 @@ const Focus = () => {
             // Pomodoro and breaks count down
             if (prev <= 1) {
               // Timer completed
-              clearInterval(timerRef.current);
+              if (timerRef.current !== null) {
+                clearInterval(timerRef.current);
+              }
               setIsActive(false);
               
               // Calculate new progress
@@ -188,25 +196,27 @@ const Focus = () => {
           }
         });
       }, 1000);
-    } else if (timerRef.current) {
+    } else if (timerRef.current !== null) {
       clearInterval(timerRef.current);
     }
     
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current !== null) {
+        clearInterval(timerRef.current);
+      }
     };
   }, [isActive, timerMode, currentRound, totalRounds, showNotifications, activeTaskId, logTimeSpent]);
   
   // Handle drag and drop for Eisenhower Matrix
-  const handleDragStart = (quadrant, task) => {
+  const handleDragStart = (quadrant: string, task: MatrixTask) => {
     setDraggingTask({ quadrant, task });
   };
   
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
   
-  const handleDrop = (targetQuadrant) => {
+  const handleDrop = (targetQuadrant: string) => {
     if (draggingTask) {
       const { quadrant: sourceQuadrant, task } = draggingTask;
       
@@ -222,6 +232,13 @@ const Focus = () => {
       }
       
       setDraggingTask(null);
+    }
+  };
+  
+  // Add handleStartTask function
+  const handleStartTask = (taskId: string) => {
+    if (activeTaskId) {
+      navigate(`/pomodoro?taskId=${activeTaskId}`);
     }
   };
   
@@ -277,6 +294,12 @@ const Focus = () => {
                             <RotateCcw className="mr-2 h-4 w-4" />
                             Reset
                           </Button>
+                          {activeTaskId && (
+                            <Button variant="default" onClick={() => handleStartTask(activeTaskId)}>
+                              <CheckSquare className="mr-2 h-4 w-4" />
+                              Start Task
+                            </Button>
+                          )}
                         </div>
                         
                         <div className="mt-6 text-sm text-gray-500">
@@ -310,6 +333,12 @@ const Focus = () => {
                             <RotateCcw className="mr-2 h-4 w-4" />
                             Reset
                           </Button>
+                          {activeTaskId && (
+                            <Button variant="default" onClick={() => handleStartTask(activeTaskId)}>
+                              <CheckSquare className="mr-2 h-4 w-4" />
+                              Start Task
+                            </Button>
+                          )}
                         </div>
                         
                         <div className="mt-6 text-sm text-gray-500">

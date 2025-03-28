@@ -160,6 +160,7 @@ export interface EnhancedTodo extends Todo {
   timeSpent?: number; // in minutes, for pomodoro tracking
   aiGenerated?: boolean; // flag for AI generated tasks
   resources?: string[]; // list of related resources
+  status?: string;
 }
 
 export type CreateEnhancedTodoInput = Omit<EnhancedTodo, 'id' | 'createdAt'>;

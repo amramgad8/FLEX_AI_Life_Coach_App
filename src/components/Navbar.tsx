@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Menu, X, Sparkles, Bell, Settings, Flame } from 'lucide-react';
+import { Menu, X, Sparkles, Bell, Settings, Flame, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AuthModal from './auth/AuthModal';
 
@@ -73,6 +72,10 @@ const Navbar = () => {
             <Sparkles className="h-4 w-4 text-flex-yellow-dark" />
             AI Agent
           </Link>
+          <Link to="/goals" className="nav-link flex items-center gap-2 hover:text-flex-green transition-colors">
+            <Target className="h-4 w-4 text-flex-orange" />
+            Goals
+          </Link>
           <Link to="/todo" className="nav-link hover:text-flex-green transition-colors">
             Tasks
           </Link>
@@ -106,7 +109,7 @@ const Navbar = () => {
             Login
           </button>
           <Link
-            to="/ai-planner"
+            to="/onboarding"
             className="cta-button"
           >
             Start Your Journey
@@ -225,6 +228,14 @@ const Navbar = () => {
             onClick={() => setIsMenuOpen(false)}
           >
             Tasks
+          </Link>
+          <Link 
+            to="/goals" 
+            className="text-xl nav-link flex items-center gap-2"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <Target className="h-5 w-5 text-flex-orange" />
+            Goals
           </Link>
           <Link 
             to="/focus" 

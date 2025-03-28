@@ -42,7 +42,7 @@ const CallToAction = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 reveal" style={{ animationDelay: '200ms' }}>
               <Link
-                to="/ai-planner"
+                to="/onboarding"
                 className="px-8 py-4 bg-white rounded-full font-medium text-flex-green-dark shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02] flex items-center justify-center"
               >
                 Start Your Journey

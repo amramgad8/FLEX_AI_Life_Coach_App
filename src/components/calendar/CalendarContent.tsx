@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EnhancedTodo } from '@/models/Todo';
 import { ViewMode } from '@/hooks/useCalendarNavigation';
@@ -17,6 +16,7 @@ interface CalendarContentProps {
   onDeleteTask: (task: EnhancedTodo) => void;
   onAddTask: (date: Date) => void;
   onDropTask: (taskId: string, date: Date) => void;
+  onDropTaskToTimeSlot?: (taskId: string, dateTime: Date) => void;
   onMonthClick: (date: Date) => void;
   isLoading: boolean;
 }
@@ -30,6 +30,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   onDeleteTask,
   onAddTask,
   onDropTask,
+  onDropTaskToTimeSlot,
   onMonthClick,
   isLoading
 }) => {
@@ -54,6 +55,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           onDeleteTask={onDeleteTask}
           onAddTask={onAddTask}
           onDropTask={onDropTask}
+          onDropTaskToTimeSlot={onDropTaskToTimeSlot}
         />
       )}
       
