@@ -1,10 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { GoalController } from '@/controllers/GoalController';
-import { GoalNode, GoalState, GoalStatus } from '@/models/Goal';
-import { toast } from '@/components/ui/use-toast';
+import { GoalController } from '../controllers/GoalController';
+import { GoalNode, GoalState, GoalStatus, GoalMap, GoalProgress } from '../models/Goal';
+import { toast } from '../components/ui/use-toast';
 
-export const useGoals = () => {
+// Define the return type for the hook
+interface UseGoalsReturn {
+  goals: GoalMap;
+  rootGoals: string[];
+  isLoading: boolean;
+  createGoal: (goal: Partial<GoalNode>, parentId?: string) => void;
+  updateGoal: (id: string, updates: Partial<GoalNode>) => void;
+  deleteGoal: (id: string) => void;
+  updateProgress: (id: string, progress: number) => void;
+  addNote: (goalId: string, note: string) => void;
+  linkTask: (goalId: string, taskId: string) => void;
+  getGoalById: (id: string) => GoalNode | null;
+  getChildrenGoals: (parentId: string) => GoalNode[];
+  getGoalStatus: (goalId: string) => GoalStatus;
+  getGoalProgress: (goalId: string) => GoalProgress | null;
+  getStatusColor: (status: GoalStatus) => string;
+}
+
+export const useGoals = (): UseGoalsReturn => {
   const queryClient = useQueryClient();
   
   // Fetch goals using React Query
@@ -136,10 +154,18 @@ export const useGoals = () => {
       linkTaskMutation.mutate({ goalId, taskId }),
     getGoalById: (id: string) => 
       goalState?.goals[id] || null,
-    getChildrenGoals: (parentId: string) => 
-      GoalController.getChildrenGoals(parentId),
-    getGoalStatus: (goalId: string) => 
-      GoalController.getGoalStatus(goalId),
+    getChildrenGoals: (parentId: string) => {
+      const parent = goalState?.goals[parentId];
+      if (!parent) return [];
+      return parent.children.map(childId => goalState?.goals[childId]).filter(Boolean);
+    },
+    getGoalStatus: (goalId: string) => {
+      const goal = goalState?.goals[goalId];
+      if (!goal) return 'not-started';
+      if (goal.completed) return 'completed';
+      if (goal.progress > 0) return 'in-progress';
+      return 'not-started';
+    },
     getGoalProgress: (goalId: string) => 
       GoalController.getGoalProgress(goalId),
     getStatusColor

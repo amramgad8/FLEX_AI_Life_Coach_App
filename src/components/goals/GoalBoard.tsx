@@ -1,158 +1,145 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { GoalNode } from '@/models/Goal';
+import React, { useState } from 'react';
 import { useGoals } from '@/hooks/useGoals';
-import { useTasks } from '@/hooks/useTasks';
+import { GoalNode } from '@/models/Goal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit2, Trash2, Plus, Target, CheckSquare } from 'lucide-react';
+import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Checkbox } from '@/components/ui/checkbox';
 
-interface GoalBoardProps {
-  onEdit: (goal: GoalNode) => void;
-  onDelete: (goalId: string) => void;
-  onAddSubgoal: (parentId: string) => void;
-}
+const BOARD_COLUMNS = ['Not Started', 'In Progress', 'Completed'];
 
-const GoalBoard: React.FC<GoalBoardProps> = ({ onEdit, onDelete, onAddSubgoal }) => {
-  const navigate = useNavigate();
-  const { rootGoals, getGoalById, getGoalProgress } = useGoals();
-  const { getTaskById, updateTaskStatus } = useTasks();
-
-  const handleTaskClick = (taskId: string) => {
-    navigate(`/tasks?task=${taskId}`);
+const GoalBoard = () => {
+  const { 
+    goals, 
+    rootGoals, 
+    getGoalById, 
+    updateGoal, 
+    deleteGoal,
+    getStatusColor
+  } = useGoals();
+  
+  const [expandedGoals, setExpandedGoals] = useState<string[]>([]);
+  
+  // Local implementation of missing functions
+  const getChildrenGoals = (parentId: string) => {
+    const parent = goals[parentId];
+    if (!parent) return [];
+    return parent.children.map(childId => goals[childId]).filter(Boolean);
+  };
+  
+  const getGoalStatus = (goalId: string) => {
+    const goal = goals[goalId];
+    if (!goal) return 'not-started';
+    if (goal.completed) return 'completed';
+    if (goal.progress > 0) return 'in-progress';
+    return 'not-started';
+  };
+  
+  const toggleGoalExpansion = (id: string) => {
+    if (expandedGoals.includes(id)) {
+      setExpandedGoals(expandedGoals.filter(goalId => goalId !== id));
+    } else {
+      setExpandedGoals([...expandedGoals, id]);
+    }
+  };
+  
+  const renderGoalCard = (goal: GoalNode, isSubgoal: boolean = false) => {
+    const status = getGoalStatus(goal.id);
+    const isExpanded = expandedGoals.includes(goal.id);
+    const childGoals = getChildrenGoals(goal.id);
+    
+    return (
+      <motion.div
+        key={goal.id}
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className={`mb-4 ${isSubgoal ? 'ml-6' : ''}`}
+      >
+        <Card className="border-l-4" style={{ borderLeftColor: getStatusColor(status) }}>
+          <CardHeader className="pb-2 flex flex-row items-start justify-between">
+            <div>
+              <CardTitle className="flex items-center">
+                <span className="mr-2">{goal.icon}</span>
+                {goal.title}
+              </CardTitle>
+              {goal.deadline && (
+                <div className="text-sm text-muted-foreground">
+                  Due: {format(new Date(goal.deadline), 'MMM d, yyyy')}
+                </div>
+              )}
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="ghost" size="icon" onClick={() => {}}>
+                <Edit2 className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => deleteGoal(goal.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {goal.description && (
+              <p className="text-muted-foreground text-sm mb-3">{goal.description}</p>
+            )}
+            
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm">Progress</span>
+              <span className="text-sm font-medium">{goal.progress}%</span>
+            </div>
+            <Progress value={goal.progress} className="mb-4" />
+            
+            {goal.children.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => toggleGoalExpansion(goal.id)}
+                className="mt-2"
+              >
+                {isExpanded ? "Hide Subgoals" : `Show Subgoals (${goal.children.length})`}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+        
+        {isExpanded && childGoals.map(childGoal => renderGoalCard(childGoal, true))}
+      </motion.div>
+    );
   };
 
-  const handleTaskStatusChange = async (taskId: string, checked: boolean) => {
-    try {
-      await updateTaskStatus(taskId, checked ? 'completed' : 'not-started');
-    } catch (error) {
-      console.error('Error updating task status:', error);
-    }
+  const getGoalsByStatus = (status: string) => {
+    return Object.values(goals).filter(goal => {
+      const goalStatus = getGoalStatus(goal.id);
+      
+      if (status === 'Not Started' && goalStatus === 'not-started') return true;
+      if (status === 'In Progress' && goalStatus === 'in-progress') return true;
+      if (status === 'Completed' && goalStatus === 'completed') return true;
+      
+      return false;
+    });
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {rootGoals.map(id => {
-        const goal = getGoalById(id);
-        if (!goal) return null;
-
-        const progress = getGoalProgress(id);
-        const status = goal.status || 'not-started';
-
-        return (
-          <motion.div
-            key={goal.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="h-full">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  {goal.title}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onAddSubgoal(goal.id)}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(goal)}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(goal.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {goal.description && (
-                    <p className="text-sm text-gray-600">{goal.description}</p>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Progress</span>
-                      <span className="text-sm font-medium">{progress?.percentComplete || 0}%</span>
-                    </div>
-                    <Progress value={progress?.percentComplete || 0} className="h-2" />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="capitalize">
-                      {status.replace('-', ' ')}
-                    </Badge>
-                    {goal.deadline && (
-                      <Badge variant="outline">
-                        Due {format(new Date(goal.deadline), 'MMM d')}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {goal.taskIds && goal.taskIds.length > 0 && (
-                    <div className="pt-2 border-t">
-                      <h4 className="text-sm font-medium mb-2">Linked Tasks</h4>
-                      <div className="space-y-2">
-                        {goal.taskIds.map(taskId => {
-                          const task = getTaskById(taskId);
-                          if (!task) return null;
-                          return (
-                            <div
-                              key={taskId}
-                              className="flex items-center gap-2 p-2 text-sm hover:bg-gray-50 rounded-md transition-colors"
-                            >
-                              <Checkbox
-                                checked={task.status === 'completed'}
-                                onCheckedChange={(checked) => handleTaskStatusChange(taskId, checked as boolean)}
-                                className="h-4 w-4"
-                              />
-                              <button
-                                onClick={() => handleTaskClick(taskId)}
-                                className="flex-1 text-left truncate"
-                              >
-                                <span className={task.status === 'completed' ? 'line-through text-gray-500' : ''}>
-                                  {task.title}
-                                </span>
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {goal.children && goal.children.length > 0 && (
-                    <div className="pt-2 border-t">
-                      <p className="text-sm text-gray-500">
-                        {progress?.completedSubtasks || 0} of {progress?.totalSubtasks || 0} subtasks completed
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        );
-      })}
+    <div className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {BOARD_COLUMNS.map(column => (
+          <div key={column} className="bg-card p-4 rounded-lg">
+            <h3 className="font-semibold mb-4">{column}</h3>
+            {getGoalsByStatus(column).map(goal => renderGoalCard(goal))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default GoalBoard; 
+export default GoalBoard;

@@ -1,18 +1,18 @@
 import { ReactNode } from 'react';
 
-export type MessageType = 'user' | 'assistant' | 'text' | 'suggestion' | 'alert' | 'insight';
-
 export interface ChatMessage {
   id: string;
   content: string;
-  type: MessageType;
-  timestamp: string | Date;
+  sender: 'user' | 'assistant';
+  timestamp: Date;
+  type?: 'text' | 'suggestion' | 'alert' | 'insight';
 }
 
 export interface AIModelOption {
   id: string;
   name: string;
   description: string;
+  capabilities: string[];
+  icon: string;
   className: string;
-  icon: ReactNode;
 }
