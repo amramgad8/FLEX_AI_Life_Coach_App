@@ -11,7 +11,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white pt-16 pb-8">
+    <footer className="bg-white dark:bg-gray-900 pt-16 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div className="space-y-4">
@@ -25,7 +25,7 @@ const Footer = () => {
                 Flex
               </span>
             </Link>
-            <p className="text-foreground/70">
+            <p className="text-foreground/70 dark:text-gray-400">
               Adaptive habit building platform that evolves with you, helping you transform your routines and achieve your goals.
             </p>
             <div className="flex space-x-4">
@@ -45,13 +45,13 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold mb-4 text-flex-text">Quick Links</h3>
+            <h3 className="font-bold mb-4 text-flex-text dark:text-white">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <Link 
                   to="/"
                   onClick={scrollToTop}
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Home
                 </Link>
@@ -59,7 +59,7 @@ const Footer = () => {
               <li>
                 <Link 
                   to="/focus"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Focus Mode
                 </Link>
@@ -67,7 +67,7 @@ const Footer = () => {
               <li>
                 <Link 
                   to="/about"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   About
                 </Link>
@@ -75,15 +75,15 @@ const Footer = () => {
               <li>
                 <Link 
                   to="/settings"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Settings
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="#"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  to="/faq"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   FAQ
                 </Link>
@@ -92,44 +92,44 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold mb-4 text-flex-text">Resources</h3>
+            <h3 className="font-bold mb-4 text-flex-text dark:text-white">Resources</h3>
             <ul className="space-y-2">
               <li>
                 <Link 
                   to="/blog"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Blog
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="#"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  to="/help-center"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Help Center
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="#"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  to="/community"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Community
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="#"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  to="/privacy"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="#"
-                  className="text-foreground/70 hover:text-flex-green transition-colors"
+                  to="/terms"
+                  className="text-foreground/70 dark:text-gray-400 hover:text-flex-green transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -138,15 +138,15 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold mb-4 text-flex-text">Newsletter</h3>
-            <p className="text-foreground/70 mb-4">
+            <h3 className="font-bold mb-4 text-flex-text dark:text-white">Newsletter</h3>
+            <p className="text-foreground/70 dark:text-gray-400 mb-4">
               Subscribe to our newsletter for tips, updates, and exclusive content.
             </p>
             <div className="flex">
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className="flex-1 px-4 py-2 rounded-l-lg border border-border focus:outline-none focus:ring-1 focus:ring-flex-green"
+                className="flex-1 px-4 py-2 rounded-l-lg border border-border dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-flex-green dark:bg-gray-800"
               />
               <button className="bg-flex-green text-white px-4 py-2 rounded-r-lg hover:bg-flex-green-dark transition-colors">
                 <Send size={18} />
@@ -155,12 +155,12 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-foreground/60 text-sm mb-4 md:mb-0">
+        <div className="border-t border-border dark:border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
+          <p className="text-foreground/60 dark:text-gray-500 text-sm mb-4 md:mb-0">
             &copy; {new Date().getFullYear()} Flex. All rights reserved.
           </p>
           <div className="flex items-center">
-            <p className="text-foreground/60 text-sm flex items-center">
+            <p className="text-foreground/60 dark:text-gray-500 text-sm flex items-center">
               Made with <Heart size={14} className="mx-1 text-flex-green" /> by the Flex Team
             </p>
             <button 

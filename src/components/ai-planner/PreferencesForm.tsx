@@ -99,18 +99,19 @@ const PreferencesForm = ({
         </div>
 
         {!hasGeneratedPlan && (
-          <div className="mt-6 flex justify-center">
-            <Button 
-              onClick={onGeneratePlan} 
-              disabled={isGenerating}
-              className="gap-2 bg-chameleon-gradient hover:opacity-90"
-              size="lg"
-            >
-              <Wand2 className="h-5 w-5" />
-              {isGenerating ? 'Generating...' : 'Generate Plan'}
-            </Button>
-          </div>
-        )}
+  <div className="mt-6 flex justify-center">
+    <Button 
+      onClick={onGeneratePlan} 
+      disabled={isGenerating}
+      className="gap-2 bg-chameleon-gradient hover:opacity-90 text-black hover:text-white"
+      size="lg"
+    >
+      <Wand2 className="h-5 w-5" />
+      {isGenerating ? 'Generating...' : 'Generate Plan'}
+    </Button>
+  </div>
+)}
+
       </CardContent>
     </Card>
   );

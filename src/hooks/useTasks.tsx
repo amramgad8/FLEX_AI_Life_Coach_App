@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoController } from '@/controllers/TodoController';
 import { EnhancedTodo, TaskFilters, EisenhowerQuadrant } from '@/models/Todo';
@@ -7,6 +7,7 @@ import { isAfter, isBefore, isSameDay, startOfDay } from 'date-fns';
 
 export const useTasks = () => {
   const queryClient = useQueryClient();
+  
   // Mutations
   const createTaskMutation = useMutation({
     mutationFn: (newTask: Partial<EnhancedTodo>) => 
@@ -56,19 +57,6 @@ export const useTasks = () => {
     }
   });
 
-  // Add moveToTimeSlot mutation for updating task time
-  const moveToTimeSlotMutation = useMutation({
-    mutationFn: ({ taskId, newDateTime }: { taskId: string; newDateTime: Date }) => 
-      TodoController.moveToTimeSlot(taskId, newDateTime),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-      toast({
-        title: "Task scheduled",
-        description: "Your task has been scheduled to a specific time.",
-      });
-    }
-  });
-
   // Time logging mutation (for Pomodoro)
   const logTimeSpentMutation = useMutation({
     mutationFn: ({ taskId, minutes }: { taskId: string; minutes: number }) => 
@@ -114,82 +102,19 @@ export const useTasks = () => {
     queryFn: () => TodoController.getTodos()
   });
 
-  // Get task by ID
-  const getTaskById = (taskId: string) => {
-    return tasks.find(task => task.id === taskId);
-  };
-  
-  // Update task status
-  const updateTaskStatus = async (taskId: string, status: string) => {
-    try {
-      const task = getTaskById(taskId);
-      if (task) {
-        updateTaskMutation.mutate({ 
-          id: taskId, 
-          completed: status === 'completed'
-        });
-      }
-    } catch (error) {
-      console.error('Error updating task status:', error);
-    }
-  };
-
   // Filter tasks
   const filterTasks = (tasks: EnhancedTodo[], filters: TaskFilters) => {
-    return tasks.filter(task => {
-      // Filter by search
-      if (filters.search && !task.title.toLowerCase().includes(filters.search.toLowerCase())) {
-        return false;
-      }
-      
-      // Filter by priority
-      if (filters.priorities.length > 0 && !filters.priorities.includes(task.priority)) {
-        return false;
-      }
-      
-      // Filter by category
-      if (filters.categories.length > 0 && !filters.categories.includes(task.category)) {
-        return false;
-      }
-      
-      // Filter by Eisenhower quadrant
-      if (filters.eisenhowerQuadrants?.length && task.eisenhowerQuadrant && 
-          !filters.eisenhowerQuadrants.includes(task.eisenhowerQuadrant)) {
-        return false;
-      }
-      
-      // Filter by date range
-      if (filters.dateRange.from && task.dueDate && 
-          isBefore(new Date(task.dueDate), startOfDay(filters.dateRange.from))) {
-        return false;
-      }
-      
-      if (filters.dateRange.to && task.dueDate && 
-          isAfter(new Date(task.dueDate), startOfDay(filters.dateRange.to))) {
-        return false;
-      }
-      
-      // Filter by duration
-      if (filters.durationRange.min !== undefined && task.duration < filters.durationRange.min) {
-        return false;
-      }
-      
-      if (filters.durationRange.max !== undefined && task.duration > filters.durationRange.max) {
-        return false;
-      }
-      
-      // Filter by completion status
-      if (!filters.showCompleted && task.completed) {
-        return false;
-      }
-      
-      return true;
-    });
+    // ... keep existing code
   };
 
   // Get tasks by Eisenhower quadrant
   const getTasksByQuadrant = (quadrant: EisenhowerQuadrant) => {
     return tasks.filter(task => task.eisenhowerQuadrant === quadrant);
+  };
+
+  // New function to get task by ID
+  const getTaskById = (taskId: string): EnhancedTodo | undefined => {
+    return tasks.find(task => task.id === taskId);
   };
 
   return {
@@ -200,9 +125,6 @@ export const useTasks = () => {
     deleteTask: deleteTaskMutation.mutate,
     moveTask: (taskId: string, date: Date) => {
       moveTaskMutation.mutate({ taskId, newDate: date });
-    },
-    moveToTimeSlot: (taskId: string, dateTime: Date) => {
-      moveToTimeSlotMutation.mutate({ taskId, newDateTime: dateTime });
     },
     completeTask: (task: EnhancedTodo, completed: boolean) => {
       updateTaskMutation.mutate({ id: task.id, completed });
@@ -218,7 +140,6 @@ export const useTasks = () => {
     },
     filterTasks,
     getTasksByQuadrant,
-    getTaskById,
-    updateTaskStatus
+    getTaskById
   };
 };

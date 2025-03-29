@@ -70,7 +70,7 @@ const Navbar = () => {
           </Link>
           <Link to="/ai-planner" className="nav-link flex items-center gap-2 hover:text-flex-green transition-colors">
             <Sparkles className="h-4 w-4 text-flex-yellow-dark" />
-            AI Agent
+            Flexy
           </Link>
           <Link to="/goals" className="nav-link flex items-center gap-2 hover:text-flex-green transition-colors">
             <Target className="h-4 w-4 text-flex-orange" />

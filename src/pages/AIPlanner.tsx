@@ -11,6 +11,8 @@ import AIPlannerChat from '../components/ai-planner/AIPlannerChat';
 import ModifyPlanDialog from '../components/ai-planner/ModifyPlanDialog';
 import { OnboardingData } from './Onboarding';
 import { motion } from 'framer-motion';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const AIPlanner = () => {
   const navigate = useNavigate();
@@ -215,19 +217,36 @@ const AIPlanner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-white to-green-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
       <Navbar />
       <div className="container mx-auto py-28 px-4">
         <div className="flex flex-col gap-8 max-w-4xl mx-auto">
           <PlannerHeader />
 
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={toggleInterface}
-              className="text-sm text-flex-green underline"
-            >
-              Switch to {useChatInterface ? 'form' : 'chat'} interface
-            </button>
+          <div className="flex justify-center mb-6">
+            <div className="flex items-center space-x-3 bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm border">
+              <button
+                onClick={() => setUseChatInterface(false)}
+                className={`text-sm px-4 py-2 rounded-full transition-colors ${
+                  !useChatInterface 
+                    ? 'bg-flex-green text-white font-medium' 
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                Form Mode
+              </button>
+              
+              <button
+                onClick={() => setUseChatInterface(true)}
+                className={`text-sm px-4 py-2 rounded-full transition-colors ${
+                  useChatInterface 
+                    ? 'bg-flex-green text-white font-medium' 
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                Chat Mode
+              </button>
+            </div>
           </div>
 
           {isEditing ? (

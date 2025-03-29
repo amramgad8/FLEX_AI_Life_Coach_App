@@ -16,6 +16,7 @@ interface GoalFormProps {
   onSave: (goal: Partial<GoalNode>) => void;
   editGoal?: GoalNode | null;
   parentGoal?: GoalNode | null;
+  goal?: GoalNode;
 }
 
 const GoalForm = ({ isOpen, onClose, onSave, editGoal, parentGoal }: GoalFormProps) => {

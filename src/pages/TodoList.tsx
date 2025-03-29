@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TodoController } from '../controllers/TodoController';
-import { Todo, CreateTodoInput } from '../models/Todo';
+import { Todo, CreateTodoInput, EnhancedTodo } from '../models/Todo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/components/ui/use-toast';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import TaskFormDialog from '../components/calendar/TaskFormDialog';
 
 const TodoList = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [taskToEdit, setTaskToEdit] = useState<EnhancedTodo | null>(null);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch todos using React Query
@@ -53,6 +56,19 @@ const TodoList = () => {
     }
   });
 
+  // Update todo mutation
+  const updateTodoMutation = useMutation({
+    mutationFn: (todo: Partial<EnhancedTodo>) => 
+      TodoController.updateTodo(todo.id!, todo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast({
+        title: "Todo updated",
+        description: "The task has been updated.",
+      });
+    }
+  });
+
   const handleAddTodo = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTodoTitle.trim()) return;
@@ -61,6 +77,19 @@ const TodoList = () => {
       title: newTodoTitle,
       completed: false
     });
+  };
+
+  const handleEditTask = (task: Todo) => {
+    setTaskToEdit(task as EnhancedTodo);
+    setIsTaskFormOpen(true);
+  };
+
+  const handleSaveTask = (updatedTask: Partial<EnhancedTodo>) => {
+    if (taskToEdit) {
+      updateTodoMutation.mutate({ ...updatedTask, id: taskToEdit.id });
+      setIsTaskFormOpen(false);
+      setTaskToEdit(null);
+    }
   };
 
   return (
@@ -113,17 +142,36 @@ const TodoList = () => {
                   {todo.title}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => deleteTodoMutation.mutate(todo.id)}
-              >
-                <Trash2 className="h-5 w-5 text-muted-foreground" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleEditTask(todo)}
+                >
+                  <Edit className="h-5 w-5 text-muted-foreground" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteTodoMutation.mutate(todo.id)}
+                >
+                  <Trash2 className="h-5 w-5 text-muted-foreground" />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
       </div>
+
+      {taskToEdit && (
+        <TaskFormDialog
+          isOpen={isTaskFormOpen}
+          onClose={() => setIsTaskFormOpen(false)}
+          onSave={handleSaveTask}
+          task={taskToEdit}
+          selectedDate={taskToEdit.dueDate || new Date()}
+        />
+      )}
     </div>
   );
 };
