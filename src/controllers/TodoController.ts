@@ -54,7 +54,11 @@ export class TodoController {
         const newTodo: EnhancedTodo = {
           ...todoInput as any,
           id: Date.now().toString(),
+          title: (todoInput as any).title || 'Untitled Task',
           createdAt: new Date(),
+          dueDate: (todoInput as any).dueDate ? new Date((todoInput as any).dueDate) : undefined,
+          startTime: (todoInput as any).startTime ? new Date((todoInput as any).startTime) : undefined,
+          endTime: (todoInput as any).endTime ? new Date((todoInput as any).endTime) : undefined,
           priority: (todoInput as any).priority || 'medium',
           category: (todoInput as any).category || 'other',
           duration: (todoInput as any).duration || 30,
@@ -62,6 +66,7 @@ export class TodoController {
           aiGenerated: (todoInput as any).aiGenerated || false,
           resources: (todoInput as any).resources || []
         };
+        
         
         const updatedTodos = [...todos, newTodo];
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedTodos));

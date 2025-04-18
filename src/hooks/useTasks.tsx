@@ -20,6 +20,11 @@ export const useTasks = () => {
       });
     }
   });
+
+  const moveToTimeSlot = (taskId: string, dateTime: Date) => {
+    moveTaskMutation.mutate({ taskId, newDate: dateTime });
+  };
+  
   
   const updateTaskMutation = useMutation({
     mutationFn: (task: Partial<EnhancedTodo>) => 
@@ -103,9 +108,70 @@ export const useTasks = () => {
   });
 
   // Filter tasks
-  const filterTasks = (tasks: EnhancedTodo[], filters: TaskFilters) => {
-    // ... keep existing code
+  const filterTasks = (tasks: EnhancedTodo[], filters: TaskFilters): EnhancedTodo[] => {
+    return tasks.filter((task) => {
+      const {
+        search,
+        priorities,
+        categories,
+        dateRange,
+        durationRange,
+        showCompleted
+      } = filters;
+  
+      // Search by title
+      const matchesSearch = search
+        ? task.title.toLowerCase().includes(search.toLowerCase())
+        : true;
+  
+      // Filter by priority
+      const matchesPriority = priorities.length > 0
+        ? priorities.includes(task.priority)
+        : true;
+  
+      // Filter by category
+      const matchesCategory = categories.length > 0
+        ? categories.includes(task.category)
+        : true;
+  
+      // Filter by completed status
+      const matchesCompleted = showCompleted ? true : !task.completed;
+  
+      // Filter by date range
+      const matchesDateRange =
+        dateRange?.from || dateRange?.to
+          ? (() => {
+              const taskDate = startOfDay(new Date(task.dueDate));
+              const start = dateRange.from ? startOfDay(new Date(dateRange.from)) : null;
+              const end = dateRange.to ? startOfDay(new Date(dateRange.to)) : null;
+  
+              return (!start || !isBefore(taskDate, start)) &&
+                     (!end || !isAfter(taskDate, end));
+            })()
+          : true;
+  
+      // Filter by duration range
+      const matchesDurationRange =
+        durationRange?.min !== undefined || durationRange?.max !== undefined
+          ? (() => {
+              const min = durationRange.min ?? 0;
+              const max = durationRange.max ?? Infinity;
+              return task.duration >= min && task.duration <= max;
+            })()
+          : true;
+  
+      // Return if all match
+      return (
+        matchesSearch &&
+        matchesPriority &&
+        matchesCategory &&
+        matchesCompleted &&
+        matchesDateRange &&
+        matchesDurationRange
+      );
+    });
   };
+  
 
   // Get tasks by Eisenhower quadrant
   const getTasksByQuadrant = (quadrant: EisenhowerQuadrant) => {
@@ -126,6 +192,7 @@ export const useTasks = () => {
     moveTask: (taskId: string, date: Date) => {
       moveTaskMutation.mutate({ taskId, newDate: date });
     },
+    moveToTimeSlot, // ✅ أضفها هنا
     completeTask: (task: EnhancedTodo, completed: boolean) => {
       updateTaskMutation.mutate({ id: task.id, completed });
     },
@@ -142,4 +209,4 @@ export const useTasks = () => {
     getTasksByQuadrant,
     getTaskById
   };
-};
+};  
