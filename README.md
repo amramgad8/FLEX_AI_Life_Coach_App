@@ -1,102 +1,191 @@
-# Productivity AI Assistant
+# 🧠 FLEX AI Life Coach Web App
 
-A FastAPI-based web application that provides AI-powered productivity assistance, personalized planning, and goal roadmapping.
+<div align="center">
+  <img src="assets/header.png" alt="FLEX AI Life Coach Header" width="800"/>
+</div>
 
-## Features
+## 📝 Overview
 
-- Chat interface for productivity-related questions
-- Personalized productivity plan generation
-- Detailed goal roadmapping
-- Vector-based document search and retrieval
-- Integration with Google's Gemini Pro model
+FLEX AI Life Coach is an innovative web application that leverages artificial intelligence to provide personalized life coaching and guidance. This project represents our first graduation project, combining cutting-edge technologies to create an intelligent and user-friendly life coaching platform.
 
-## Setup
+## 🎯 Project Goals
 
+- Provide personalized life coaching through AI-powered interactions
+- Create an intuitive and engaging user interface
+- Implement secure and efficient data handling
+- Deliver actionable insights and recommendations
+- Support continuous learning and improvement
+
+## 🛠️ Technologies Used
+
+<div align="center">
+
+### Frontend
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+
+### Backend
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-FF6B6B?style=for-the-badge&logo=langchain&logoColor=white)
+![Google AI](https://img.shields.io/badge/Google_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+</div>
+
+## 📊 Architecture
+
+```mermaid
+graph TD
+    A[Client Browser] --> B[React Frontend]
+    B --> C[FastAPI Backend]
+    C --> D[LangChain]
+    D --> E[Google AI]
+    C --> F[Vector Database]
+    C --> G[User Data Storage]
+    
+    subgraph Frontend
+    B
+    end
+    
+    subgraph Backend
+    C
+    D
+    E
+    F
+    G
+    end
+```
+
+## 🔄 Workflow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant AI
+    participant Database
+    
+    User->>Frontend: Input Query/Request
+    Frontend->>Backend: API Request
+    Backend->>Database: Fetch User Context
+    Backend->>AI: Process Request
+    AI->>Backend: Generate Response
+    Backend->>Frontend: Return Response
+    Frontend->>User: Display Results
+```
+
+## 🚀 Installation
+
+### Prerequisites
+- Node.js (v18 or higher)
+- Python (v3.8 or higher)
+- npm or yarn
+- Git
+
+### Frontend Setup
 1. Clone the repository:
-```bash
-git clone <repository-url>
-cd <repository-name>
+   ```bash
+   git clone [repository-url]
+   cd flex-ai-life-coach
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+### Backend Setup
+1. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the root directory with:
+   ```
+   GOOGLE_API_KEY=your_api_key
+   DATABASE_URL=your_database_url
+   ```
+
+4. Start the backend server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+## 📦 Dependencies
+
+### Frontend Dependencies
+- React 18
+- TypeScript
+- TailwindCSS
+- Radix UI Components
+- React Router DOM
+- React Query
+- Framer Motion
+- And more (see package.json)
+
+### Backend Dependencies
+- FastAPI
+- LangChain
+- Google Generative AI
+- FAISS
+- scikit-learn
+- numpy
+- And more (see requirements.txt)
+
+## 🏗️ Project Structure
+
+```
+flex-ai-life-coach/
+├── assets/              # Static assets and images
+├── src/                 # Frontend source code
+│   ├── components/     # React components
+│   ├── pages/         # Page components
+│   ├── services/      # API services
+│   └── utils/         # Utility functions
+├── backend/            # Backend source code
+│   ├── api/           # API endpoints
+│   ├── models/        # Data models
+│   └── services/      # Business logic
+├── vector_db/         # Vector database storage
+└── public/            # Public assets
 ```
 
-2. Create a virtual environment and activate it:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+## 👥 Team
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+- [Team Member 1]
+- [Team Member 2]
+- [Team Member 3]
+- [Team Member 4]
 
-4. Create a `.env` file in the root directory with the following variables:
-```
-GOOGLE_API_KEY=your_google_api_key
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-DEBUG_MODE=False
-```
+## 🙏 Acknowledgments
 
-5. Start the FastAPI server:
-```bash
-uvicorn src.services.api:app --reload
-```
+- Our mentors and professors
+- The open-source community
+- All contributors who have helped shape this project
 
-The application will be available at `http://localhost:8000`.
+---
 
-## API Endpoints
-
-### Chat
-- `POST /api/chat`
-  - Request body: `{"message": "your question"}`
-  - Returns AI response based on context
-
-### Generate Plan
-- `POST /api/generate-plan`
-  - Request body: User profile information
-  - Returns personalized productivity plan
-
-### Generate Roadmap
-- `POST /api/generate-roadmap`
-  - Request body: `{"goal": "your goal", "timeframe": "timeframe"}`
-  - Returns detailed roadmap for achieving the goal
-
-### Health Check
-- `GET /api/health`
-  - Returns application status
-
-## Architecture
-
-The application consists of several key components:
-
-1. **FastAPI Backend**
-   - Handles HTTP requests and responses
-   - Implements API endpoints
-   - Manages CORS and security
-
-2. **RAG System**
-   - Integrates vector database and LLM
-   - Handles document retrieval and response generation
-
-3. **Vector Database**
-   - Stores and retrieves document chunks
-   - Uses FAISS for efficient similarity search
-   - Implements TF-IDF vectorization
-
-4. **LLM Integration**
-   - Interfaces with Google's Gemini Pro model
-   - Manages different types of prompts
-   - Handles response generation
-
-## Development
-
-To contribute to the project:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+<div align="center">
+  <img src="assets/logo.png" alt="FLEX AI Logo" width="200"/>
+  <br/>
+  <em>Empowering lives through AI-driven coaching</em>
+</div>
