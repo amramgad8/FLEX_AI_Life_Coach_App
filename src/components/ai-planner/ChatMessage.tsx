@@ -1,6 +1,7 @@
- 
 import React from 'react';
 import { Bot, User } from 'lucide-react';
+import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessageProps {
   content: string;
@@ -13,6 +14,7 @@ const ChatMessage = ({ content, type }: ChatMessageProps) => {
   }
   
   // Convert line breaks to <br> tags for better formatting
+  // Only pass 'key' and 'children' to React.Fragment (no other props allowed)
   const formattedContent = content.split('\n').map((line, i) => (
     <React.Fragment key={i}>
       {line}
@@ -21,12 +23,17 @@ const ChatMessage = ({ content, type }: ChatMessageProps) => {
   ));
   
   return (
-    <div className={`flex ${type === 'answer' ? 'justify-end' : 'justify-start'} mb-4`}>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={`flex ${type === 'answer' ? 'justify-end' : 'justify-start'} mb-4`}
+    >
       <div className={`
-        flex items-start max-w-[80%] rounded-2xl p-3.5 
+        flex items-start max-w-[80%] rounded-2xl p-4
         ${type === 'answer' 
-          ? 'bg-flex-green text-white rounded-br-none ml-auto' 
-          : 'bg-gray-100 text-gray-800 rounded-bl-none'
+          ? 'bg-flex-green text-white rounded-br-none ml-auto shadow-md' 
+          : 'bg-gray-100 text-gray-800 rounded-bl-none shadow-sm'
         }
       `}>
         {type === 'question' && (
@@ -35,9 +42,11 @@ const ChatMessage = ({ content, type }: ChatMessageProps) => {
         {type === 'answer' && (
           <User className="h-5 w-5 ml-2 mt-0.5 shrink-0 order-2 text-white" />
         )}
-        <span className={`text-sm ${type === 'answer' ? 'order-1 mr-2' : 'ml-2'}`}>{formattedContent}</span>
+        <div className={`text-sm ${type === 'answer' ? 'order-1 mr-2' : 'ml-2'}`}>
+          <ReactMarkdown>{content}</ReactMarkdown>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

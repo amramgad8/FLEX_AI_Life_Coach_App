@@ -1,69 +1,102 @@
-# Welcome to your Lovable project
+# Productivity AI Assistant
 
-## Project info
+A FastAPI-based web application that provides AI-powered productivity assistance, personalized planning, and goal roadmapping.
 
-**URL**: https://lovable.dev/projects/ee9853f7-c7f1-4d0b-a93e-648634eb6538
+## Features
 
-## How can I edit this code?
+- Chat interface for productivity-related questions
+- Personalized productivity plan generation
+- Detailed goal roadmapping
+- Vector-based document search and retrieval
+- Integration with Google's Gemini Pro model
 
-There are several ways of editing your application.
+## Setup
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/ee9853f7-c7f1-4d0b-a93e-648634eb6538) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd <repository-name>
 ```
 
-**Edit a file directly in GitHub**
+2. Create a virtual environment and activate it:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-**Use GitHub Codespaces**
+4. Create a `.env` file in the root directory with the following variables:
+```
+GOOGLE_API_KEY=your_google_api_key
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200
+DEBUG_MODE=False
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+5. Start the FastAPI server:
+```bash
+uvicorn src.services.api:app --reload
+```
 
-## What technologies are used for this project?
+The application will be available at `http://localhost:8000`.
 
-This project is built with .
+## API Endpoints
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Chat
+- `POST /api/chat`
+  - Request body: `{"message": "your question"}`
+  - Returns AI response based on context
 
-## How can I deploy this project?
+### Generate Plan
+- `POST /api/generate-plan`
+  - Request body: User profile information
+  - Returns personalized productivity plan
 
-Simply open [Lovable](https://lovable.dev/projects/ee9853f7-c7f1-4d0b-a93e-648634eb6538) and click on Share -> Publish.
+### Generate Roadmap
+- `POST /api/generate-roadmap`
+  - Request body: `{"goal": "your goal", "timeframe": "timeframe"}`
+  - Returns detailed roadmap for achieving the goal
 
-## I want to use a custom domain - is that possible?
+### Health Check
+- `GET /api/health`
+  - Returns application status
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Architecture
+
+The application consists of several key components:
+
+1. **FastAPI Backend**
+   - Handles HTTP requests and responses
+   - Implements API endpoints
+   - Manages CORS and security
+
+2. **RAG System**
+   - Integrates vector database and LLM
+   - Handles document retrieval and response generation
+
+3. **Vector Database**
+   - Stores and retrieves document chunks
+   - Uses FAISS for efficient similarity search
+   - Implements TF-IDF vectorization
+
+4. **LLM Integration**
+   - Interfaces with Google's Gemini Pro model
+   - Manages different types of prompts
+   - Handles response generation
+
+## Development
+
+To contribute to the project:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -1,11 +1,10 @@
-
 import { AIGeneratedPlan, UserPreferences, ScheduleItem } from "../models/AIPlanner";
 import { ApiService } from "../services/ApiService";
 import { OnboardingData } from "../pages/Onboarding";
 
 export class AIPlannerController {
-  private static ENDPOINT = '/ai-planner';
-  private static useApi = false; // Set to true when your FastAPI backend is ready
+  private static ENDPOINT = '/generate-plan';
+  private static useApi = true; // Set to true when your FastAPI backend is ready
 
   static async generatePlan(
     preferences: UserPreferences, 
@@ -13,11 +12,19 @@ export class AIPlannerController {
   ): Promise<AIGeneratedPlan> {
     try {
       if (this.useApi) {
+        // Map UserPreferences to UserProfile fields expected by backend
+        const profile = {
+          goal: preferences.primaryGoal || preferences.goal || '',
+          wake_time: preferences.wakeUpTime || preferences.startTime || '09:00',
+          sleep_time: preferences.sleepTime || preferences.endTime || '17:00',
+          focus_periods: preferences.focusPeriods || 4,
+          break_duration: preferences.breakDuration || 5,
+          work_style: preferences.workStyle || preferences.work_style || 'structured',
+          habits: preferences.habits || '',
+          rest_days: preferences.restDays || preferences.rest_days || ''
+        };
         // Use the API service
-        return await ApiService.post<AIGeneratedPlan>(this.ENDPOINT, {
-          preferences,
-          onboardingData
-        });
+        return await ApiService.post<AIGeneratedPlan>(this.ENDPOINT, profile);
       } else {
         // Fallback to mock data
         console.log("Generating plan based on preferences:", preferences);

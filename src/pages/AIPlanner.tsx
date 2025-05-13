@@ -13,6 +13,11 @@ import { OnboardingData } from './Onboarding';
 import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
+import AIPlannerForm from '../components/ai-planner/AIPlannerForm';
+import { Card } from '../components/ui/card';
+import { Lightbulb } from 'lucide-react';
+import ChatPlanCard from '../components/ai-planner/ChatPlanCard';
 
 const AIPlanner = () => {
   const navigate = useNavigate();
@@ -22,8 +27,12 @@ const AIPlanner = () => {
   const [generatedPlan, setGeneratedPlan] = useState<AIGeneratedPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
-  const [useChatInterface, setUseChatInterface] = useState(true);
+  const [useChatInterface, setUseChatInterface] = useState(false);
   const [showModifyDialog, setShowModifyDialog] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [chatContext, setChatContext] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast: useToastToast } = useToast();
 
   useEffect(() => {
     const onboardingDataStr = localStorage.getItem('onboardingData');
@@ -216,6 +225,140 @@ const AIPlanner = () => {
     setUseChatInterface(!useChatInterface);
   };
 
+  const handleFormSubmit = async (formData: any) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ form_data: formData }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+      
+      const data = await response.json();
+      setFormData(formData);
+      setGeneratedPlan(data.plan);
+      setIsEditing(false);
+      
+      toast({
+        title: "Success",
+        description: "Your personalized plan has been generated!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit form. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChatInteraction = async (message: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/chat/interactive', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          context: chatContext,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to process chat message');
+      }
+      
+      const data = await response.json();
+      
+      // Update chat context
+      setChatContext(prev => ({
+        ...prev,
+        ...data.response.context,
+      }));
+
+      // If this is the last question, generate the plan
+      if (data.response.context.current_question >= 4) {
+        const plan = await AIPlannerController.generatePlan(data.response.context);
+        setGeneratedPlan(plan);
+        setIsEditing(false);
+      }
+      
+      return data.response.message;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process message. Please try again.",
+        variant: "destructive",
+      });
+      return "I apologize, but I encountered an error. Please try again.";
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddTask = (task: any) => {
+    // TODO: Implement task addition logic
+    toast({
+      title: "Task Added",
+      description: `Added task: ${task.title}`,
+    });
+  };
+
+  const handleAddAllTasks = (milestone: any) => {
+    // TODO: Implement bulk task addition logic
+    toast({
+      title: "Tasks Added",
+      description: `Added ${milestone.tasks.length} tasks from ${milestone.title}`,
+    });
+  };
+
+  function cleanAndParsePlan(plan: any) {
+    if (typeof plan === 'string') {
+      // Remove code block markers if present
+      let cleaned = plan.trim();
+      if (cleaned.startsWith('```json')) {
+        cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
+      } else if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
+      }
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        return null;
+      }
+    }
+    return plan;
+  }
+
+  function renderPlan(plan: any) {
+    const parsedPlan = cleanAndParsePlan(plan);
+    if (!parsedPlan || !parsedPlan.milestones) {
+      return (
+        <pre className="whitespace-pre-wrap text-sm text-gray-800">{typeof plan === 'string' ? plan : JSON.stringify(plan, null, 2)}</pre>
+      );
+    }
+    return (
+      <ChatPlanCard
+        plan={parsedPlan}
+        onAddTask={handleAddTask}
+        onAddAllTasks={handleAddAllTasks}
+        onModifyPlan={handleModifyPlan}
+        onSavePlan={() => {}}
+        expandable={false}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-green-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
       <Navbar />
@@ -269,8 +412,16 @@ const AIPlanner = () => {
                   </p>
                   
                   <AIPlannerChat 
-                    onUpdatePreferences={updatePreferences}
-                    onComplete={generatePlan}
+                    onUpdatePreferences={handleChatInteraction}
+                    onComplete={() => {
+                      useToastToast({
+                        title: "Success",
+                        description: "Chat interaction completed successfully",
+                      });
+                    }}
+                    onAddTask={handleAddTask}
+                    onAddAllTasks={handleAddAllTasks}
+                    onModifyPlan={handleModifyPlan}
                   />
                 </div>
               </motion.div>
@@ -281,27 +432,22 @@ const AIPlanner = () => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
               >
-                <PreferencesForm
-                  preferences={preferences}
-                  isEditing={isEditing}
-                  isGenerating={isGenerating}
-                  onInputChange={handleInputChange}
-                  onNumberChange={handleNumberChange}
-                  onGeneratePlan={generatePlan}
-                  hasGeneratedPlan={!!generatedPlan}
+                <AIPlannerForm 
+                  onSubmit={handleFormSubmit}
+                  isLoading={isLoading}
                 />
               </motion.div>
             )
           ) : null}
 
+          {/* Show the generated plan in a card if it exists */}
           {generatedPlan && (
-            <GeneratedPlan
-              plan={generatedPlan}
-              onModify={handleModifyPlan}
-              onSave={savePlan}
-            />
+            <Card className="p-6 mt-4">
+              <h3 className="text-lg font-semibold mb-2">Your Personalized Plan</h3>
+              {renderPlan(generatedPlan)}
+            </Card>
           )}
-          
+
           <ModifyPlanDialog 
             isOpen={showModifyDialog}
             onClose={() => setShowModifyDialog(false)}
