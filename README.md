@@ -1,7 +1,7 @@
 # 🧠 FLEX AI Life Coach Web App
 
 <div align="center">
-  <img src="assets/header.png" alt="FLEX AI Life Coach Header" width="800"/>
+  <img src="https://github.com/Welloz03/chameleon-flexibility-09/blob/ae54deeda9405419c2dcfc94108bf2bdefa3ed01/assets/Flex_Header.png" alt="FLEX AI Life Coach Header" width="800"/>
 </div>
 
 ## 📝 Overview
