@@ -185,7 +185,7 @@ flex-ai-life-coach/
 ---
 
 <div align="center">
-  <img src="assets/logo.png" alt="FLEX AI Logo" width="200"/>
+  <img src="https://github.com/Welloz03/chameleon-flexibility-09/blob/fd70a6f187b552616b4675a1ba98af3edf921e1d/assets/Flex_Logo_H.png" alt="FLEX AI Logo" width="200"/>
   <br/>
   <em>Empowering lives through AI-driven coaching</em>
 </div>
