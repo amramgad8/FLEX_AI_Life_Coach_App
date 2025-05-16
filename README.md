@@ -182,6 +182,7 @@ flex-ai-life-coach/
 - The open-source community
 - All contributors who have helped shape this project
 
+
 ---
 
 <div align="center">
