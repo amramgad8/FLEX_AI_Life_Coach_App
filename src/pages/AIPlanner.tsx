@@ -242,7 +242,7 @@ const AIPlanner = () => {
 
   const toggleInterface = () => {
     setUseChatInterface(!useChatInterface);
-    setIsEditing(true); // Ensure interfaces remain visible
+    setIsEditing(true); 
   };
 
   const handleFormSubmit = async (formData: any) => {
@@ -402,6 +402,74 @@ const AIPlanner = () => {
     }
   };
 
+  const generateFormPlan = async () => {
+    setIsGenerating(true);
+    try {
+      const plan = await AIPlannerController.generatePlan(preferences);
+      setGeneratedPlan(plan);
+      setIsEditing(false);
+      toast({
+        title: "Plan Generated!",
+        description: "Your personalized schedule is ready to review.",
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "There was an error generating your plan.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateChatPlan = async () => {
+    setIsGenerating(true);
+    try {
+      const planPreferences = { ...preferences, ...chatContext };
+      const plan = await AIPlannerController.generatePlan(planPreferences);
+      setGeneratedPlan(plan);
+      setIsEditing(false);
+      toast({
+        title: "Plan Generated!",
+        description: "Your personalized schedule is ready to review.",
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "There was an error generating your plan.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Add an effect to hide the generate button when chat is closed
+  useEffect(() => {
+    // Listen for clicks on the chat toggle button
+    const handleClick = (event: MouseEvent) => {
+      // Cast as HTMLElement to access textContent
+      const target = event.target as HTMLElement;
+      
+      // Check if the clicked element is a button and contains text related to the chat
+      if (target.tagName === 'BUTTON') {
+        // If the button text indicates closing the chat, hide the generate button
+        if (target.textContent?.includes('Close Chat')) {
+          setHasUserSentMessage(false);
+        }
+      }
+    };
+    
+    // Add event listener to the document
+    document.addEventListener('click', handleClick);
+    
+    // Clean up the event listener on component unmount
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-green-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
       <Navbar />
@@ -412,7 +480,7 @@ const AIPlanner = () => {
           <div className="flex justify-center mb-6">
             <div className="flex items-center space-x-3 bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm border">
               <button
-                onClick={() => setUseChatInterface(false)}
+                onClick={toggleInterface}
                 className={`text-sm px-4 py-2 rounded-full transition-colors ${
                   !useChatInterface 
                     ? 'bg-flex-green text-white font-medium' 
@@ -421,9 +489,8 @@ const AIPlanner = () => {
               >
                 Form Mode
               </button>
-              
               <button
-                onClick={() => setUseChatInterface(true)}
+                onClick={toggleInterface}
                 className={`text-sm px-4 py-2 rounded-full transition-colors ${
                   useChatInterface 
                     ? 'bg-flex-green text-white font-medium' 
@@ -469,7 +536,7 @@ const AIPlanner = () => {
                 {hasUserSentMessage && (
                   <div className="flex justify-center mt-4">
                     <Button
-                      onClick={generatePlanFromChat}
+                      onClick={generateChatPlan}
                       className="bg-flex-green hover:bg-flex-green-dark text-white py-2 px-6 rounded-full shadow-md transition-all"
                       disabled={isGenerating}
                     >
@@ -503,7 +570,7 @@ const AIPlanner = () => {
                 onSubmit={handleFormSubmit}
                 isLoading={isLoading}
                 isGenerating={isGenerating}
-                onGeneratePlan={generatePlan}
+                onGeneratePlan={generateFormPlan}
                 hasGeneratedPlan={!!generatedPlan}
               />
             </motion.div>

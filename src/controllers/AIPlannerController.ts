@@ -14,14 +14,14 @@ export class AIPlannerController {
       if (this.useApi) {
         // Map UserPreferences to UserProfile fields expected by backend
         const profile = {
-          goal: preferences.primaryGoal || preferences.goal || '',
-          wake_time: preferences.wakeUpTime || preferences.startTime || '09:00',
-          sleep_time: preferences.sleepTime || preferences.endTime || '17:00',
+          goal: preferences.primaryGoal || '',
+          wake_time: preferences.wakeUpTime || '09:00',
+          sleep_time: preferences.sleepTime || '17:00',
           focus_periods: preferences.focusPeriods || 4,
           break_duration: preferences.breakDuration || 5,
-          work_style: preferences.workStyle || preferences.work_style || 'structured',
-          habits: preferences.habits || '',
-          rest_days: preferences.restDays || preferences.rest_days || ''
+          work_style: 'structured',
+          habits: '',
+          rest_days: ''
         };
         // Use the API service
         return await ApiService.post<AIGeneratedPlan>(this.ENDPOINT, profile);

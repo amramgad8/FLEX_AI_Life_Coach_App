@@ -62,7 +62,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
               transition={{ duration: 0.3 }}
               className={cn(
                 "flex max-w-[80%] rounded-lg p-3",
-                message.type === 'user' 
+                message.sender === 'user' 
                   ? "bg-primary text-primary-foreground ml-auto" 
                   : "bg-muted"
               )}
