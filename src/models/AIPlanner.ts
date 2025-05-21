@@ -58,4 +58,3 @@ export const AI_MODELS: AIModelDefinition[] = [
     className: 'bg-flex-orange text-white'
   }
 ];
-

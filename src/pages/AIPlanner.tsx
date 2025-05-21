@@ -18,6 +18,7 @@ import AIPlannerForm from '../components/ai-planner/AIPlannerForm';
 import { Card } from '../components/ui/card';
 import { Lightbulb } from 'lucide-react';
 import ChatPlanCard from '../components/ai-planner/ChatPlanCard';
+import { Button } from '@/components/ui/button';
 
 const AIPlanner = () => {
   const navigate = useNavigate();
@@ -30,8 +31,9 @@ const AIPlanner = () => {
   const [useChatInterface, setUseChatInterface] = useState(false);
   const [showModifyDialog, setShowModifyDialog] = useState(false);
   const [formData, setFormData] = useState({});
-  const [chatContext, setChatContext] = useState({});
+  const [chatContext, setChatContext] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
   const { toast: useToastToast } = useToast();
 
   useEffect(() => {
@@ -222,6 +224,11 @@ const AIPlanner = () => {
   };
 
   const toggleInterface = () => {
+    if (!useChatInterface) {
+      // Reset chat-specific state if needed when switching to chat
+    } else {
+      // Reset form-specific state if needed when switching to form
+    }
     setUseChatInterface(!useChatInterface);
   };
 
@@ -262,6 +269,7 @@ const AIPlanner = () => {
 
   const handleChatInteraction = async (message: string) => {
     setIsLoading(true);
+    setHasUserSentMessage(true);
     try {
       const response = await fetch('http://localhost:8000/api/chat/interactive', {
         method: 'POST',
@@ -286,13 +294,7 @@ const AIPlanner = () => {
         ...data.response.context,
       }));
 
-      // If this is the last question, generate the plan
-      if (data.response.context.current_question >= 4) {
-        const plan = await AIPlannerController.generatePlan(data.response.context);
-        setGeneratedPlan(plan);
-        setIsEditing(false);
-      }
-      
+      // Always keep chat active, even after the last question
       return data.response.message;
     } catch (error) {
       toast({
@@ -359,6 +361,36 @@ const AIPlanner = () => {
     );
   }
 
+  // Function to generate plan from chat context
+  const generatePlanFromChat = async () => {
+    setIsGenerating(true);
+    try {
+      // Convert chatContext to UserPreferences format or use existing preferences
+      const planPreferences = {
+        ...preferences, // Use base preferences
+        ...chatContext, // Override with any properties from chat context
+      };
+      
+      const plan = await AIPlannerController.generatePlan(planPreferences);
+      setGeneratedPlan(plan);
+      setIsEditing(false);
+      
+      toast({
+        title: "Plan Generated!",
+        description: "Your personalized schedule is ready to review.",
+      });
+    } catch (error) {
+      console.error("Error generating plan:", error);
+      toast({
+        title: "Generation Failed",
+        description: "There was an error generating your plan. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-green-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
       <Navbar />
@@ -423,6 +455,24 @@ const AIPlanner = () => {
                     onAddAllTasks={handleAddAllTasks}
                     onModifyPlan={handleModifyPlan}
                   />
+                  
+                  {/* Show Generate button after user sends first message */}
+                  {hasUserSentMessage && (
+                    <Button
+                      onClick={generatePlanFromChat}
+                      className="w-full mt-4 bg-flex-green hover:bg-flex-green-dark text-white"
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <div className="flex items-center justify-center">
+                          <span className="animate-spin mr-2">⟳</span> 
+                          Generating Your Plan...
+                        </div>
+                      ) : (
+                        'Generate Plan'
+                      )}
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             ) : (

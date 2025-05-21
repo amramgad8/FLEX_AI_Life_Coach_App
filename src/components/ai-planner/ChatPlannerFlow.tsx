@@ -3,6 +3,13 @@ import AIPlannerChat from './AIPlannerChat';
 import { useTaskStore } from '@/stores/taskStore';
 import { toast } from 'sonner';
 
+export interface QuestionState {
+  inputType: 'time' | 'text' | 'slider' | 'select' | 'multi-select';
+  placeholder?: string;
+  options?: Array<{ label: string; value: string }>;
+  sliderOptions?: { min: number; max: number; step: number; defaultValue: number };
+}
+
 interface Task {
   title: string;
   completed?: boolean;
@@ -23,7 +30,7 @@ const ChatPlannerFlow: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const { addTask, addTasks } = useTaskStore();
 
-  const handleUpdatePreferences = async (message: string): Promise<string> => {
+  const handleUpdatePreferences = async (message: string, history: any[] = [], context: any = {}): Promise<{ message: string; plan?: any; context?: any; history?: any[]; plan_confirmed?: boolean }> => {
     try {
       const response = await fetch('/api/chat/interactive', {
         method: 'POST',
@@ -32,7 +39,8 @@ const ChatPlannerFlow: React.FC = () => {
         },
         body: JSON.stringify({
           message,
-          context: {},
+          context,
+          history,
         }),
       });
 
@@ -41,7 +49,13 @@ const ChatPlannerFlow: React.FC = () => {
       }
 
       const data = await response.json();
-      return data.response.plan || data.response.message;
+      return {
+        message: data.response.message || data.response.plan,
+        plan: data.response.plan,
+        context: data.response.context,
+        history: data.response.history,
+        plan_confirmed: data.response.plan_confirmed
+      };
     } catch (error) {
       console.error('Error updating preferences:', error);
       throw error;

@@ -8,9 +8,15 @@ import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
+interface GoalBoardProps {
+  onEdit: (goal: GoalNode) => void;
+  onDelete: (goalId: string) => void;
+  onAddSubgoal: (parentId: string) => void;
+}
+
 const BOARD_COLUMNS = ['Not Started', 'In Progress', 'Completed'];
 
-const GoalBoard = () => {
+const GoalBoard = ({ onEdit, onDelete, onAddSubgoal }: GoalBoardProps) => {
   const { 
     goals, 
     rootGoals, 
