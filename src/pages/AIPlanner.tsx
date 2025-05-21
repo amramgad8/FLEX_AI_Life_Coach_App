@@ -19,6 +19,23 @@ import { Card } from '../components/ui/card';
 import { Lightbulb } from 'lucide-react';
 import ChatPlanCard from '../components/ai-planner/ChatPlanCard';
 import { Button } from '@/components/ui/button';
+import { ChangeEvent } from 'react';
+
+// Add a wrapper for AIPlannerForm to handle the extra props
+const EnhancedAIPlannerForm = (props: any) => {
+  const { 
+    preferences, 
+    onInputChange, 
+    onNumberChange, 
+    isGenerating, 
+    onGeneratePlan, 
+    hasGeneratedPlan, 
+    ...formProps 
+  } = props;
+  
+  // We only pass through the props that AIPlannerForm actually accepts
+  return <AIPlannerForm {...formProps} />;
+};
 
 const AIPlanner = () => {
   const navigate = useNavigate();
@@ -224,12 +241,8 @@ const AIPlanner = () => {
   };
 
   const toggleInterface = () => {
-    if (!useChatInterface) {
-      // Reset chat-specific state if needed when switching to chat
-    } else {
-      // Reset form-specific state if needed when switching to form
-    }
     setUseChatInterface(!useChatInterface);
+    setIsEditing(true); // Ensure interfaces remain visible
   };
 
   const handleFormSubmit = async (formData: any) => {
@@ -288,13 +301,11 @@ const AIPlanner = () => {
       
       const data = await response.json();
       
-      // Update chat context
       setChatContext(prev => ({
         ...prev,
         ...data.response.context,
       }));
 
-      // Always keep chat active, even after the last question
       return data.response.message;
     } catch (error) {
       toast({
@@ -309,7 +320,6 @@ const AIPlanner = () => {
   };
 
   const handleAddTask = (task: any) => {
-    // TODO: Implement task addition logic
     toast({
       title: "Task Added",
       description: `Added task: ${task.title}`,
@@ -317,7 +327,6 @@ const AIPlanner = () => {
   };
 
   const handleAddAllTasks = (milestone: any) => {
-    // TODO: Implement bulk task addition logic
     toast({
       title: "Tasks Added",
       description: `Added ${milestone.tasks.length} tasks from ${milestone.title}`,
@@ -326,7 +335,6 @@ const AIPlanner = () => {
 
   function cleanAndParsePlan(plan: any) {
     if (typeof plan === 'string') {
-      // Remove code block markers if present
       let cleaned = plan.trim();
       if (cleaned.startsWith('```json')) {
         cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
@@ -346,7 +354,12 @@ const AIPlanner = () => {
     const parsedPlan = cleanAndParsePlan(plan);
     if (!parsedPlan || !parsedPlan.milestones) {
       return (
-        <pre className="whitespace-pre-wrap text-sm text-gray-800">{typeof plan === 'string' ? plan : JSON.stringify(plan, null, 2)}</pre>
+        <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+          <p className="text-red-600">Invalid plan format. Showing raw data:</p>
+          <pre className="whitespace-pre-wrap text-sm text-gray-800 mt-2">
+            {typeof plan === 'string' ? plan : JSON.stringify(plan, null, 2)}
+          </pre>
+        </div>
       );
     }
     return (
@@ -355,20 +368,18 @@ const AIPlanner = () => {
         onAddTask={handleAddTask}
         onAddAllTasks={handleAddAllTasks}
         onModifyPlan={handleModifyPlan}
-        onSavePlan={() => {}}
-        expandable={false}
+        onSavePlan={savePlan}
+        expandable={true}
       />
     );
   }
 
-  // Function to generate plan from chat context
   const generatePlanFromChat = async () => {
     setIsGenerating(true);
     try {
-      // Convert chatContext to UserPreferences format or use existing preferences
       const planPreferences = {
-        ...preferences, // Use base preferences
-        ...chatContext, // Override with any properties from chat context
+        ...preferences,
+        ...chatContext.preferences,
       };
       
       const plan = await AIPlannerController.generatePlan(planPreferences);
@@ -424,74 +435,81 @@ const AIPlanner = () => {
             </div>
           </div>
 
-          {isEditing ? (
-            useChatInterface ? (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
-                  <h2 className="text-xl font-semibold text-flex-text flex items-center">
-                    <span className="bg-flex-green text-white p-1 rounded-md mr-2">AI</span>
-                    AI Planner Agent
-                  </h2>
-                  <p className="text-gray-600">
-                    I'll help you create a personalized schedule based on your preferences and goals.
-                    Start a chat below to tell me about your needs, and I'll generate an optimized plan for you.
-                  </p>
-                  
-                  <AIPlannerChat 
-                    onUpdatePreferences={handleChatInteraction}
-                    onComplete={() => {
-                      useToastToast({
-                        title: "Success",
-                        description: "Chat interaction completed successfully",
-                      });
-                    }}
-                    onAddTask={handleAddTask}
-                    onAddAllTasks={handleAddAllTasks}
-                    onModifyPlan={handleModifyPlan}
-                  />
-                  
-                  {/* Show Generate button after user sends first message */}
-                  {hasUserSentMessage && (
+          {useChatInterface ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
+                <h2 className="text-xl font-semibold text-flex-text flex items-center">
+                  <span className="bg-flex-green text-white p-1 rounded-md mr-2">AI</span>
+                  AI Planner Agent
+                </h2>
+                <p className="text-gray-600">
+                  I'll help you create a personalized schedule based on your preferences and goals.
+                  Start a chat below to tell me about your needs, and I'll generate an optimized plan for you.
+                </p>
+                
+                <AIPlannerChat 
+                  onUpdatePreferences={handleChatInteraction}
+                  onComplete={() => {
+                    useToastToast({
+                      title: "Success",
+                      description: "Chat interaction completed successfully",
+                    });
+                  }}
+                  onAddTask={handleAddTask}
+                  onAddAllTasks={handleAddAllTasks}
+                  onModifyPlan={handleModifyPlan}
+                />
+                
+                {hasUserSentMessage && (
+                  <div className="flex justify-center mt-4">
                     <Button
                       onClick={generatePlanFromChat}
-                      className="w-full mt-4 bg-flex-green hover:bg-flex-green-dark text-white"
+                      className="bg-flex-green hover:bg-flex-green-dark text-white py-2 px-6 rounded-full shadow-md transition-all"
                       disabled={isGenerating}
                     >
                       {isGenerating ? (
-                        <div className="flex items-center justify-center">
-                          <span className="animate-spin mr-2">⟳</span> 
-                          Generating Your Plan...
-                        </div>
+                        <span className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Generating...
+                        </span>
                       ) : (
-                        'Generate Plan'
+                        'Generate My Plan'
                       )}
                     </Button>
-                  )}
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AIPlannerForm 
-                  onSubmit={handleFormSubmit}
-                  isLoading={isLoading}
-                />
-              </motion.div>
-            )
-          ) : null}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <EnhancedAIPlannerForm 
+                preferences={preferences}
+                onInputChange={handleInputChange}
+                onNumberChange={handleNumberChange}
+                onSubmit={handleFormSubmit}
+                isLoading={isLoading}
+                isGenerating={isGenerating}
+                onGeneratePlan={generatePlan}
+                hasGeneratedPlan={!!generatedPlan}
+              />
+            </motion.div>
+          )}
 
-          {/* Show the generated plan in a card if it exists */}
-          {generatedPlan && (
+          {generatedPlan && !isEditing && (
             <Card className="p-6 mt-4">
               <h3 className="text-lg font-semibold mb-2">Your Personalized Plan</h3>
               {renderPlan(generatedPlan)}
