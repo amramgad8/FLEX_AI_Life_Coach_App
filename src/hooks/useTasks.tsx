@@ -192,7 +192,7 @@ export const useTasks = () => {
     moveTask: (taskId: string, date: Date) => {
       moveTaskMutation.mutate({ taskId, newDate: date });
     },
-    moveToTimeSlot, // ✅ أضفها هنا
+    moveToTimeSlot, 
     completeTask: (task: EnhancedTodo, completed: boolean) => {
       updateTaskMutation.mutate({ id: task.id, completed });
     },

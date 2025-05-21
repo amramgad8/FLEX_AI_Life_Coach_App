@@ -3,8 +3,16 @@ import { useGoals } from '@/hooks/useGoals';
 import { GoalNode } from '@/models/Goal';
 import { motion } from 'framer-motion';
 import { format, isAfter, isBefore, isToday } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Edit2, Trash2 } from 'lucide-react';
 
-const GoalTimeline = () => {
+interface GoalTimelineProps {
+  onEdit: (goal: GoalNode) => void;
+  onDelete: (goalId: string) => void;
+  onAddSubgoal: (parentId: string) => void;
+}
+
+const GoalTimeline = ({ onEdit, onDelete, onAddSubgoal }: GoalTimelineProps) => {
   const { goals, rootGoals } = useGoals();
   
   // Get all goals that have deadlines
@@ -88,12 +96,25 @@ const GoalTimeline = () => {
                         <span className="mr-2">{goal.icon}</span>
                         <h4 className="font-medium">{goal.title}</h4>
                       </div>
-                      <div className={`text-sm px-2 py-1 rounded-full ${
-                        status === 'today' ? 'bg-yellow-100 text-yellow-800' :
-                        status === 'overdue' ? 'bg-red-100 text-red-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {format(date, 'MMM d, yyyy')}
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => onDelete(goal.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className={`text-sm px-2 py-1 rounded-full ${
+                          status === 'today' ? 'bg-yellow-100 text-yellow-800' :
+                          status === 'overdue' ? 'bg-red-100 text-red-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {format(date, 'MMM d, yyyy')}
+                        </div>
                       </div>
                     </div>
                     

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog,
@@ -71,48 +70,31 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   // Update form when task or selectedDate changes
   useEffect(() => {
-    if (task) {
-      setFormData({
-        ...task
-      });
-      
-      // Set time selection fields if task has startTime
-      if (task.startTime) {
-        const date = new Date(task.startTime);
-        let hours = date.getHours();
-        const minutes = date.getMinutes();
-        const ampm = hours >= 12 ? "PM" : "AM";
-        
-        hours = hours % 12;
-        hours = hours ? hours : 12; // Convert 0 to 12
-        
-        setStartHour(hours.toString().padStart(2, "0"));
-        setStartMinute(minutes.toString().padStart(2, "0"));
-        setStartAmPm(ampm);
-      } else {
-        // Default to 9:00 AM if no start time
-        setStartHour("09");
-        setStartMinute("00");
-        setStartAmPm("AM");
+    if (formData.dueDate) {
+      const dueDate = new Date(formData.dueDate);
+      let hours = parseInt(startHour, 10);
+  
+      if (startAmPm === "PM" && hours < 12) {
+        hours += 12;
+      } else if (startAmPm === "AM" && hours === 12) {
+        hours = 0;
       }
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        priority: 'medium',
-        category: 'other',
-        duration: 30,
-        dueDate: selectedDate,
-        location: '',
-        eisenhowerQuadrant: undefined
-      });
-      
-      // Reset to default time
-      setStartHour("09");
-      setStartMinute("00");
-      setStartAmPm("AM");
+  
+      const minutes = parseInt(startMinute, 10);
+      const startTime = new Date(dueDate);
+      startTime.setHours(hours, minutes, 0, 0);
+  
+      const duration = formData.duration || 30;
+      const endTime = new Date(startTime.getTime() + duration * 60000);
+  
+      setFormData(prev => ({
+        ...prev,
+        startTime,
+        endTime
+      }));
     }
-  }, [task, selectedDate, isOpen]);
+  }, [startHour, startMinute, startAmPm, formData.dueDate, formData.duration]);
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -146,46 +128,39 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Calculate startTime based on selected time
-    if (formData.dueDate) {
-      const dueDate = new Date(formData.dueDate);
-      let hours = parseInt(startHour, 10);
-      
-      // Convert 12-hour to 24-hour format
-      if (startAmPm === "PM" && hours < 12) {
-        hours += 12;
-      } else if (startAmPm === "AM" && hours === 12) {
-        hours = 0;
-      }
-      
-      const minutes = parseInt(startMinute, 10);
-      
-      // Create start time Date object
-      const startTime = new Date(dueDate);
-      startTime.setHours(hours, minutes, 0, 0);
-      
-      // Calculate end time based on duration
-      const endTime = new Date(startTime);
-      endTime.setMinutes(endTime.getMinutes() + (formData.duration || 30));
-      
-      // Update form data with times
-      setFormData(prev => ({
-        ...prev,
-        startTime,
-        endTime
-      }));
-      
-      // Pass updated form data including times
-      onSave({
-        ...formData,
-        startTime,
-        endTime
-      });
-    } else {
-      onSave(formData);
+  
+    if (!formData.title || !formData.dueDate) {
+      alert("Please fill in all required fields");
+      return;
     }
-  };
+  
+    // حساب startTime من dueDate + الوقت اللي حدده اليوزر
+    const dueDate = new Date(formData.dueDate);
+    let hours = parseInt(startHour, 10);
+    if (startAmPm === "PM" && hours < 12) {
+      hours += 12;
+    } else if (startAmPm === "AM" && hours === 12) {
+      hours = 0;
+    }
+    const minutes = parseInt(startMinute, 10);
+    const startTime = new Date(dueDate);
+    startTime.setHours(hours, minutes, 0, 0);
+  
+    // حساب endTime من startTime + المدة
+    const duration = formData.duration || 30;
+    const endTime = new Date(startTime.getTime() + duration * 60000);
+  
+    // تخزين المهمة
+    onSave({
+      ...formData,
+      startTime,
+      endTime
+    });
+  
+    // غلق الفورم
+    onClose();
+  };  
+    
 
   // Generate hours for select
   const hours = Array.from({ length: 12 }, (_, i) => {

@@ -60,7 +60,9 @@ const TaskHub = () => {
       priority: "medium",
       category: "other",
       duration: 30,
-      dueDate: date
+      dueDate: date,
+      startTime: date,
+      endTime: new Date(date.getTime() + 30 * 60000) // 30 minutes after start time
     };
     createTask(newTask as any);
   };
