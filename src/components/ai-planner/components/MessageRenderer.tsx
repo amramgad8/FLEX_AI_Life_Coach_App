@@ -42,7 +42,10 @@ const MessageRenderer: React.FC<MessageRendererProps> = ({
       </div>
     );
   }
-  return <ChatMessage key={index} content={message.content} type={message.type} />;
+  
+  // For non-plan messages, ensure we only pass valid types to ChatMessage
+  const messageType = message.type === 'plan' ? 'question' : message.type;
+  return <ChatMessage key={index} content={message.content} type={messageType} />;
 };
 
 export default MessageRenderer;
