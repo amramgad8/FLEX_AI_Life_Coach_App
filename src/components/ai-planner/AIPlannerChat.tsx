@@ -91,8 +91,8 @@ const AIPlannerChat = ({
       
       // If response has a plan property that contains the plan structure
       if (response && typeof response === 'object' && response.plan && 
-          typeof response.plan === 'object' && response.plan.header_note && 
-          response.plan.goal && response.plan.milestones) {
+          typeof response.plan === 'object' && 
+          response.plan.header_note && response.plan.goal && response.plan.milestones) {
         const planData = response.plan;
         setPlan(planData);
         setEditingKey(prev => prev + 1);
@@ -102,8 +102,8 @@ const AIPlannerChat = ({
         });
       }
       // If response is directly a plan object
-      else if (response && typeof response === 'object' && response.header_note && 
-               response.goal && response.milestones) {
+      else if (response && typeof response === 'object' && 
+               response.header_note && response.goal && response.milestones) {
         setPlan(response);
         setEditingKey(prev => prev + 1);
         setMessages(prev => {
