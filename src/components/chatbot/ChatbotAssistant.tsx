@@ -1,14 +1,15 @@
+
 import { useDragControls, AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
 import ChatbotFloatingButton from './ChatbotFloatingButton';
 import ChatbotDialog from './ChatbotDialog';
 import { useChatbotState } from './useChatbotState';
-import { CHAT_MODE_SYSTEM_PROMPT, CHAT_MODE_USER_PROMPT } from '../../prompts/chatModePrompt';
+import { ChatMessage } from './types';
 import { ChatService } from '../../services/chatService';
 
 const ChatbotAssistant = () => {
   const [state, actions] = useChatbotState();
-  const { isOpen, messages, isTyping, activeTab, aiModel } = state;
+  const { isOpen, messages, isTyping, activeTab, aiModel, inputMessage } = state;
   const { toggleOpen, sendMessage, applySuggestion, setActiveTab, setAIModel, setIsOpen, setMessages, setInputMessage, setIsTyping } = actions;
   
   const dragControls = useDragControls();
@@ -18,31 +19,29 @@ const ChatbotAssistant = () => {
     dragControls.start(event);
   }
 
-  const handleSendMessage = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async (message: string): Promise<string> => {
+    if (!message.trim()) return '';
     
     const newUserMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: inputMessage,
+      content: message,
       sender: 'user',
       timestamp: new Date(),
       type: 'text'
     };
     
     setMessages((prev) => [...prev, newUserMessage]);
-    setInputMessage('');
     setIsTyping(true);
     
     try {
       const chatService = ChatService.getInstance();
       const response = await chatService.sendMessage([
         ...messages.map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'assistant',
-          content: msg.content
+          role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          timestamp: Date.now()
         })),
-        { role: 'user', content: inputMessage }
+        { role: 'user' as const, content: message, timestamp: Date.now() }
       ]);
 
       const newAssistantMessage: ChatMessage = {
@@ -54,6 +53,7 @@ const ChatbotAssistant = () => {
       };
       
       setMessages((prev) => [...prev, newAssistantMessage]);
+      return response.message.content;
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
@@ -64,6 +64,7 @@ const ChatbotAssistant = () => {
         type: 'text'
       };
       setMessages((prev) => [...prev, errorMessage]);
+      return errorMessage.content;
     } finally {
       setIsTyping(false);
     }

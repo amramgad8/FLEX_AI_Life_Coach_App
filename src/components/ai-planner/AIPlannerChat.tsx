@@ -90,7 +90,7 @@ const AIPlannerChat = ({
       }
       
       // If response is wrapped as { plan: ... }, extract the plan object
-      if (response && typeof response === 'object' && 'plan' in response && response.plan.header_note) {
+      if (response && typeof response === 'object' && 'plan' in response && response.plan && response.plan.header_note) {
         response = response.plan;
       }
       

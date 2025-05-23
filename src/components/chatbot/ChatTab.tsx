@@ -11,7 +11,7 @@ interface ChatTabProps {
     content: string;
   }>;
   isLoading: boolean;
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string) => Promise<string>;
 }
 
 const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage }) => {
@@ -27,10 +27,10 @@ const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage })
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
-      onSendMessage(input.trim());
+      await onSendMessage(input.trim());
       setInput('');
     }
   };
