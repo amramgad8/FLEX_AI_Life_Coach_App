@@ -34,6 +34,32 @@ FLEX AI Life Coach is an innovative web application that leverages artificial in
 
 </div>
 
+## ✨ Features
+
+### Rich Text Support
+- Full Markdown rendering in chat messages
+- Syntax highlighting for code blocks
+- Support for tables, lists, and blockquotes
+- Inline code formatting
+- Secure HTML sanitization
+- Responsive design for all screen sizes
+
+### Chat Interface
+- Real-time message updates
+- Typing indicators
+- Message animations
+- Code block syntax highlighting
+- Markdown formatting
+- Link previews
+- File attachments
+
+### AI Integration
+- Natural language processing
+- Context-aware responses
+- Personalized recommendations
+- Goal tracking and progress monitoring
+- Adaptive learning
+
 ## 📊 Architecture
 
 ```mermaid
@@ -140,6 +166,9 @@ sequenceDiagram
 - React Router DOM
 - React Query
 - Framer Motion
+- React Markdown
+- React Syntax Highlighter
+- Rehype Raw & Sanitize
 - And more (see package.json)
 
 ### Backend Dependencies

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -87,17 +86,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div ref={messagesEndRef} />
       </div>
       <div className="p-3 border-t bg-white">
-        <div className="flex gap-2 mb-2">
-          <Button 
-            onClick={handleTestPlan}
-            size="sm"
-            variant="outline"
-            className="text-xs"
-          >
-            <Sparkles className="h-3 w-3 mr-1" />
-            Test Plan
-          </Button>
-        </div>
         <form onSubmit={onSendMessage} className="flex gap-2">
           <Input
             value={input}

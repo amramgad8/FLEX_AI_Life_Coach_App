@@ -1,5 +1,4 @@
 import { ChatMessage, ChatResponse } from '../types/chat';
-import { CHAT_MODE_SYSTEM_PROMPT, CHAT_MODE_USER_PROMPT, DEFAULT_CHAT_MODE_CONFIG } from '../prompts/chatModePrompt';
 import { getRelevantKnowledge, getKnowledgeBaseBooks } from './knowledgeService';
 import { extractUserProfileFromChat } from '../utils/extractUserProfileFromChat';
 
@@ -29,14 +28,11 @@ export class ChatService {
       // Get available knowledge base books
       const availableBooks = await getKnowledgeBaseBooks();
 
-      // Prepare the messages for the API
-      const apiMessages = [
-        { role: 'system', content: CHAT_MODE_SYSTEM_PROMPT },
-        ...messages.map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }))
-      ];
+      // Prepare the messages for the API (no system prompt, let backend handle it)
+      const apiMessages = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
 
       // Make the API call
       const response = await fetch(`${this.apiEndpoint}/chat`, {
@@ -46,7 +42,6 @@ export class ChatService {
         },
         body: JSON.stringify({
           messages: apiMessages,
-          config: DEFAULT_CHAT_MODE_CONFIG,
           knowledgeBase,
           availableBooks,
         }),

@@ -1,9 +1,12 @@
-
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 
 interface ChatMessageProps {
   content: string;
@@ -25,17 +28,31 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ content, role, isLoading }) =
     blockquote: ({ node, ...props }: any) => (
       <blockquote className="border-l-4 border-blue-300 pl-4 italic my-3 bg-blue-50 py-2 rounded-r" {...props} />
     ),
-    code: ({ node, inline, ...props }: any) => (
-      inline ? (
-        <code className="bg-gray-200 text-gray-800 rounded px-1.5 py-0.5 text-sm font-mono" {...props} />
+    code: ({ node, inline, className, children, ...props }: any) => {
+      const match = /language-(\w+)/.exec(className || '');
+      return !inline && match ? (
+        <SyntaxHighlighter
+          style={vscDarkPlus}
+          language={match[1]}
+          PreTag="div"
+          className="rounded-lg my-3"
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
       ) : (
-        <pre className="bg-gray-800 text-gray-100 rounded-lg p-4 my-3 overflow-x-auto">
-          <code className="text-sm font-mono" {...props} />
-        </pre>
-      )
-    ),
+        <code className="bg-gray-200 text-gray-800 rounded px-1.5 py-0.5 text-sm font-mono" {...props}>
+          {children}
+        </code>
+      );
+    },
     a: ({ node, ...props }: any) => (
-      <a className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer" {...props} />
+      <a 
+        className="text-blue-600 hover:text-blue-800 underline" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        {...props} 
+      />
     ),
     strong: ({ node, ...props }: any) => <strong className="font-semibold text-gray-900" {...props} />,
     em: ({ node, ...props }: any) => <em className="italic text-gray-700" {...props} />,
@@ -81,6 +98,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ content, role, isLoading }) =
           )}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, rehypeSanitize]}
               components={customComponents}
             >
               {content}

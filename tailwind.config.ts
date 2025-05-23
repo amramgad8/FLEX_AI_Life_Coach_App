@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -146,8 +145,40 @@ export default {
 				'flex-gradient': 'linear-gradient(90deg, #4CAF50 0%, #8BC34A 30%, #FFC107 70%, #FF9800 100%)',
 				'flex-gradient-reverse': 'linear-gradient(90deg, #FF9800 0%, #FFC107 30%, #8BC34A 70%, #4CAF50 100%)',
 				'flex-light': 'linear-gradient(135deg, rgba(139, 195, 74, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%)'
-			}
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						maxWidth: 'none',
+						color: 'inherit',
+						a: {
+							color: 'inherit',
+							textDecoration: 'underline',
+							fontWeight: '500',
+						},
+						strong: {
+							color: 'inherit',
+							fontWeight: '600',
+						},
+						code: {
+							color: 'inherit',
+							fontWeight: '400',
+							backgroundColor: 'hsl(var(--muted))',
+							borderRadius: '0.25rem',
+							padding: '0.25rem 0.375rem',
+						},
+						pre: {
+							backgroundColor: 'hsl(var(--muted))',
+							borderRadius: '0.5rem',
+							padding: '1rem',
+						},
+					},
+				},
+			},
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		require("@tailwindcss/typography")
+	],
 } satisfies Config;
