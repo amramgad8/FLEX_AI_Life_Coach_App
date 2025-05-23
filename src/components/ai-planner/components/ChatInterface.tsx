@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ChatInterfaceProps {
@@ -29,6 +29,42 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   messagesEndRef,
   renderMessage
 }) => {
+  const handleTestPlan = () => {
+    // Add a test plan message to see the InlinePlanCard in action
+    const testPlanMessage = {
+      content: "Here's your test plan:",
+      type: 'plan' as const,
+      plan: {
+        header_note: "This is a test plan to demonstrate the inline plan card functionality with beautiful animations.",
+        goal: "Learn to use the AI planner effectively",
+        weekly_phases: [
+          {
+            week: 1,
+            milestone: "Getting Started",
+            tasks: [
+              { title: "Explore the chat interface" },
+              { title: "Try asking for a personalized plan" },
+              { title: "Test the plan generation features" }
+            ]
+          },
+          {
+            week: 2,
+            milestone: "Advanced Usage",
+            tasks: [
+              { title: "Customize your preferences" },
+              { title: "Save and modify plans" },
+              { title: "Integrate with task management" }
+            ]
+          }
+        ]
+      }
+    };
+    
+    // This is a hack for testing - in real usage this would come from the response
+    const event = new CustomEvent('addTestPlan', { detail: testPlanMessage });
+    window.dispatchEvent(event);
+  };
+
   return (
     <Card className="border shadow-sm overflow-hidden">
       <div className="h-[600px] overflow-y-auto p-4 bg-gray-50" style={{ scrollBehavior: 'smooth' }}>
@@ -51,6 +87,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div ref={messagesEndRef} />
       </div>
       <div className="p-3 border-t bg-white">
+        <div className="flex gap-2 mb-2">
+          <Button 
+            onClick={handleTestPlan}
+            size="sm"
+            variant="outline"
+            className="text-xs"
+          >
+            <Sparkles className="h-3 w-3 mr-1" />
+            Test Plan
+          </Button>
+        </div>
         <form onSubmit={onSendMessage} className="flex gap-2">
           <Input
             value={input}

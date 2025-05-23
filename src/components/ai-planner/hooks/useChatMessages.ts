@@ -47,12 +47,36 @@ export const useChatMessages = (
       const response = await onUpdatePreferences(input, [], {});
       console.log('Received response:', response);
       
-      const planData = extractPlanData(response);
+      // Check if response contains plan data directly
+      let planData = null;
+      
+      // Try multiple ways to extract plan data
+      if (response && typeof response === 'object') {
+        // Check if response.plan exists
+        if (response.plan) {
+          planData = extractPlanData(response.plan);
+        }
+        // Check if response itself is a plan
+        if (!planData) {
+          planData = extractPlanData(response);
+        }
+        // Check if response.message contains plan
+        if (!planData && response.message) {
+          planData = extractPlanData(response.message);
+        }
+      }
+      
+      // If it's a string response, try to parse it
+      if (!planData && typeof response === 'string') {
+        planData = extractPlanData(response);
+      }
       
       if (planData) {
         console.log('Plan data found, creating plan message:', planData);
         setPlan(planData);
         setEditingKey(prev => prev + 1);
+        
+        // Remove any existing plan messages and add the new one
         setMessages(prev => {
           const filtered = prev.filter(m => m.type !== 'plan');
           return [...filtered, { 
@@ -63,7 +87,10 @@ export const useChatMessages = (
         });
       } else {
         // Regular text response
-        const responseText = typeof response === 'string' ? response : response?.message || 'I understand. Please continue sharing your preferences.';
+        const responseText = typeof response === 'string' ? response : 
+                           response?.message || 
+                           response?.response?.message ||
+                           'I understand. Please continue sharing your preferences.';
         console.log('No plan found, adding text response:', responseText);
         setMessages(prev => [...prev, { content: responseText, type: 'question' }]);
       }
