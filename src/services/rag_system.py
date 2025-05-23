@@ -7,6 +7,7 @@ from .llm_integration import LLMIntegration
 from .config import Config
 import logging
 from .document_processor import DocumentProcessor
+import uuid
 
 class RAGSystem:
     def __init__(self, config: Config):
@@ -135,7 +136,7 @@ class RAGSystem:
             logging.error(f"process_form error: {e}")
             raise Exception(f"Error processing form: {str(e)}")
 
-    def process_chat_interaction(self, message: str, context: dict, history: list = None) -> dict:
+    def process_chat_interaction(self, message: str, context: dict, history: list = None, session_id: str = None) -> dict:
         """
         Process chat interaction with full conversational history.
         history: list of {"role": "user"/"assistant", "content": str}
@@ -146,8 +147,14 @@ class RAGSystem:
             msg = (message or "").strip()
             if not msg:
                 return {"message": "Please enter a message to continue.", "context": context or {}, "history": history}
+            
+            # Create new session if none provided
+            if not session_id:
+                session_id = str(uuid.uuid4())
+            
             # Add the user's message to the history
             history.append({"role": "user", "content": msg})
+            
             # Build the prompt from the history
             prompt = ""
             for turn in history:
@@ -156,41 +163,39 @@ class RAGSystem:
                 else:
                     prompt += f"Assistant: {turn['content']}\n"
             prompt += "Assistant:"
-            # Optionally, add RAG context at the top
+            
+            # Get relevant context from vector DB
             rag_context = self.vector_db.search(msg, n_results=3)['documents']
             context_text = "\n".join(rag_context)
-            prompt = f"Context from productivity literature:\n{context_text}\n\n" + prompt
+            
+            # Add instructions for markdown formatting and structure
+            formatting_instructions = """
+Please format your response using Markdown. Use headings (## or ###), bullet points (* or -), and ensure there is a blank line between different sections or paragraphs for readability. Structure your answer clearly.
+"""
+
+            prompt = f"{formatting_instructions}\nContext from productivity literature:\n{context_text}\n\n" + prompt
+
             # Get LLM response
-            response = self.llm.generate_response(prompt)
-            # Try to parse JSON from the response
-            cleaned = response.strip()
-            if cleaned.startswith('```json'):
-                cleaned = cleaned.replace('```json', '').replace('```', '').strip()
-            elif cleaned.startswith('```'):
-                cleaned = cleaned.replace('```', '').replace('```', '').strip()
-            try:
-                plan_data = json.loads(cleaned)
-                from .api import normalize_plan_tasks
-                plan_data = normalize_plan_tasks(plan_data)
-                assistant_message = "Here's your personalized plan:"
-                history.append({"role": "assistant", "content": assistant_message})
-                return {
-                    "message": assistant_message,
-                    "plan": plan_data,
-                    "context": context,
-                    "history": history
-                }
-            except Exception:
-                # Not a plan, just a normal message
-                history.append({"role": "assistant", "content": response})
-                return {
-                    "message": response,
-                    "context": context,
-                    "history": history
-                }
+            response = self.llm.generate_response(prompt, session_id=session_id)
+            
+            # Add response to history
+            history.append({"role": "assistant", "content": response["response"]})
+            
+            return {
+                "message": response["response"],
+                "context": context or {},
+                "history": history,
+                "session_id": session_id
+            }
+            
         except Exception as e:
             logging.error(f"process_chat_interaction error: {e}")
-            return {"message": "Sorry, something went wrong. Please try again.", "context": context or {}, "history": history}
+            return {
+                "message": "Sorry, something went wrong. Please try again.",
+                "context": context or {},
+                "history": history,
+                "session_id": session_id
+            }
 
     def query(self, message: str) -> str:
         """Handle general queries"""
@@ -206,6 +211,56 @@ class RAGSystem:
                 f"Provide a helpful and informative response based on the context above."
             )
 
-            return self.llm.generate_response(prompt)
+            return self.llm.generate_response(prompt)["response"]
         except Exception as e:
-            raise Exception(f"Error processing query: {str(e)}") 
+            raise Exception(f"Error processing query: {str(e)}")
+
+    def process_plan_generation(self, user_profile: dict, knowledge_base: str, available_books: list, context: str) -> dict:
+        """
+        Process plan generation request with user profile, knowledge base, and context.
+        """
+        try:
+            # Build the prompt for plan generation
+            plan_prompt = f"""
+You are an AI productivity coach. Based on the following user profile, knowledge base, and conversation context, generate a structured productivity plan.
+
+User Profile:
+{json.dumps(user_profile, indent=2)}
+
+Relevant Knowledge Base Information:
+{knowledge_base}
+
+Available Knowledge Base Books:
+{', '.join(available_books)}
+
+Conversation Context:
+{context}
+
+Please generate a comprehensive and actionable plan. Use Markdown formatting with headings, bullet points, and clear sections. Include:
+- A summary or overview.
+- Key steps or milestones.
+- Suggested activities or routines.
+- Tips based on the provided knowledge base.
+- A concluding motivational remark.
+Ensure blank lines between sections.
+"""
+
+            # Get LLM response for the plan
+            response = self.llm.generate_response(plan_prompt)
+
+            return {
+                "plan": response["response"],
+                "context": user_profile,
+                "history": [],
+                "session_id": response["session_id"]
+            }
+
+        except Exception as e:
+            print(f"Error in plan generation: {e}")
+            return {
+                "error": str(e),
+                "plan": None,
+                "context": user_profile,
+                "history": [],
+                "session_id": None
+            } 

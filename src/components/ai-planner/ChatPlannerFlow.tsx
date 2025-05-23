@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AIPlannerChat from './AIPlannerChat';
 import { useTaskStore } from '@/stores/taskStore';
 import { toast } from 'sonner';
+import ChatPlanCard from './ChatPlanCard';
 
 export interface QuestionState {
   inputType: 'time' | 'text' | 'slider' | 'select' | 'multi-select';
@@ -15,18 +16,20 @@ interface Task {
   completed?: boolean;
 }
 
-interface Milestone {
-  title: string;
+interface WeeklyPhase {
+  week: number;
+  milestone: string;
   tasks: Task[];
 }
 
 interface Plan {
   header_note: string;
   goal: string;
-  milestones: Milestone[];
+  weekly_phases: WeeklyPhase[];
 }
 
 const ChatPlannerFlow: React.FC = () => {
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { addTask, addTasks } = useTaskStore();
 
@@ -83,9 +86,14 @@ const ChatPlannerFlow: React.FC = () => {
       const data = await response.json();
       if (data.response.plan) {
         try {
-          const plan: Plan = JSON.parse(data.response.plan);
-          toast.success('Plan generated successfully!');
-          return plan;
+          const parsedPlan: Plan = typeof data.response.plan === 'string' ? JSON.parse(data.response.plan) : data.response.plan;
+          if (parsedPlan && parsedPlan.header_note && parsedPlan.goal && parsedPlan.weekly_phases) {
+            setPlan(parsedPlan);
+            toast.success('Plan generated successfully!');
+            return parsedPlan;
+          } else {
+            throw new Error('Invalid plan format');
+          }
         } catch (error) {
           console.error('Error parsing plan:', error);
           throw new Error('Invalid plan format');
@@ -113,9 +121,9 @@ const ChatPlannerFlow: React.FC = () => {
     }
   };
 
-  const handleAddAllTasks = (milestone: Milestone) => {
+  const handleAddAllTasks = (phase: WeeklyPhase) => {
     try {
-      const tasks = milestone.tasks.map(task => ({
+      const tasks = phase.tasks.map(task => ({
         title: task.title,
         completed: false,
         createdAt: new Date(),
@@ -141,6 +149,14 @@ const ChatPlannerFlow: React.FC = () => {
         onAddAllTasks={handleAddAllTasks}
         onModifyPlan={handleModifyPlan}
       />
+      {plan && (
+        <ChatPlanCard
+          plan={plan}
+          onAddTask={handleAddTask}
+          onAddAllTasks={handleAddAllTasks}
+          onModifyPlan={handleModifyPlan}
+        />
+      )}
     </div>
   );
 };

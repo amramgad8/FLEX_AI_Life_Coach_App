@@ -352,7 +352,7 @@ const AIPlanner = () => {
 
   function renderPlan(plan: any) {
     const parsedPlan = cleanAndParsePlan(plan);
-    if (!parsedPlan || !parsedPlan.milestones) {
+    if (!parsedPlan || !(parsedPlan.weekly_phases && Array.isArray(parsedPlan.weekly_phases))) {
       return (
         <div className="bg-red-50 p-4 rounded-lg border border-red-200">
           <p className="text-red-600">Invalid plan format. Showing raw data:</p>
