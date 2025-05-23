@@ -10,11 +10,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Plus, ZoomIn, ZoomOut, Target } from 'lucide-react';
 import LinkTaskDialog from './LinkTaskDialog';      
 
-interface GoalMindMapProps {}
+interface GoalMindMapProps {
+  goals: Record<string, GoalNodeType>;
+  onNodeClick: (goalId: string) => void;
+  selectedGoalId: string | null;
+}
 
-const GoalMindMap = ({}: GoalMindMapProps) => {
+const GoalMindMap = ({ goals, onNodeClick, selectedGoalId }: GoalMindMapProps) => {
   const { 
-    goals, 
     rootGoals, 
     isLoading,
     createGoal,
@@ -132,6 +135,10 @@ const GoalMindMap = ({}: GoalMindMapProps) => {
       </div>
     );
   }, [goals, expandedGoals, toggleExpand, handleEditGoal, handleDeleteGoal, handleAddSubgoal]);
+  
+  const handleGoalNodeClick = (goalId: string) => {
+    onNodeClick(goalId);
+  };
   
   if (isLoading) {
     return (

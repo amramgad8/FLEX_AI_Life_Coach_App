@@ -1,154 +1,171 @@
 
-import { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
+import { ChevronDown, ChevronRight, MoreVertical, Plus, Edit, Trash2, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import { GoalNode as GoalNodeType } from '@/models/Goal';
-import { Edit, Trash2, Plus, Link2 } from 'lucide-react';
-import { format } from 'date-fns';
-import GoalForm from './GoalForm';
-import LinkTaskDialog from './LinkTaskDialog';
-import LinkedTasks from './LinkedTasks';
-import { useGoals } from '@/hooks/useGoals';
+import { cn } from '@/lib/utils';
 
 interface GoalNodeProps {
   goal: GoalNodeType;
-  onEdit: (goal: GoalNodeType) => void;
+  onToggle: (goalId: string) => void;
+  onEdit: (goalId: string) => void;
   onDelete: (goalId: string) => void;
-  onAddSubgoal: (parentId: string) => void;
+  onAddSubgoal: (goalId: string) => void;
+  expanded: boolean;
+  depth: number;
 }
 
-const GoalNode = ({ goal, onEdit, onDelete, onAddSubgoal }: GoalNodeProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLinkingTask, setIsLinkingTask] = useState(false);
-  const { updateGoal } = useGoals();
-  
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-  
-  const handleLinkTask = () => {
-    setIsLinkingTask(true);
-  };
-  
-  const handleTaskComplete = (taskId: string, completed: boolean) => {
-    // This would need to be implemented in your tasks controller
-    // For now, we'll focus on the UI components
-  };
-  
-  const handleTaskRemove = (taskId: string) => {
-    // Remove task link from goal
-    if (goal.taskIds) {
-      const updatedTaskIds = goal.taskIds.filter(id => id !== taskId);
-      updateGoal(goal.id, { taskIds: updatedTaskIds });
+const GoalNode: React.FC<GoalNodeProps> = ({
+  goal,
+  onToggle,
+  onEdit,
+  onDelete,
+  onAddSubgoal,
+  expanded,
+  depth
+}) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-500';
+      case 'in-progress': return 'bg-yellow-500';
+      default: return 'bg-red-500';
     }
   };
-  
-  const goalColor = goal.color || '#3b82f6'; // Default to blue if no color provided
-  
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'completed': return 'default';
+      case 'in-progress': return 'secondary';
+      default: return 'outline';
+    }
+  };
+
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card className="mb-4 overflow-hidden">
-          <div 
-            className="h-2" 
-            style={{ backgroundColor: goalColor }}
-          />
-          <CardContent className="pt-4">
-            <div className="flex justify-between mb-2">
-              <h3 className="font-semibold text-lg">{goal.title}</h3>
-              <div className="flex space-x-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={handleEdit}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: depth * 0.1 }}
+      className={cn(
+        'relative',
+        depth > 0 && 'ml-6 mt-2'
+      )}
+    >
+      <Card className={cn(
+        'transition-all duration-200 hover:shadow-md',
+        goal.completed && 'opacity-75',
+        depth === 0 && 'border-2 border-primary/20'
+      )}>
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-3 flex-1">
+              {/* Expand/Collapse Button */}
+              {goal.children.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onToggle(goal.id)}
+                  className="p-1 h-6 w-6"
                 >
-                  <Edit className="h-4 w-4" />
+                  {expanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+              )}
+              
+              {/* Goal Icon */}
+              <div className={cn(
+                'p-2 rounded-full text-white',
+                goal.color || 'bg-primary'
+              )}>
+                <Target className="h-4 w-4" />
+              </div>
+              
+              {/* Goal Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center space-x-2 mb-2">
+                  <h3 className={cn(
+                    'font-semibold',
+                    goal.completed && 'line-through'
+                  )}>
+                    {goal.title}
+                  </h3>
+                  {goal.status && (
+                    <Badge variant={getStatusBadgeVariant(goal.status)}>
+                      {goal.status}
+                    </Badge>
+                  )}
+                </div>
+                
+                {goal.description && (
+                  <p className="text-sm text-gray-600 mb-2">{goal.description}</p>
+                )}
+                
+                {/* Progress Bar */}
+                <div className="mb-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-500">Progress</span>
+                    <span className="text-xs font-medium">{goal.progress}%</span>
+                  </div>
+                  <Progress value={goal.progress} className="h-2" />
+                </div>
+                
+                {/* Deadline */}
+                {goal.deadline && (
+                  <p className="text-xs text-gray-500">
+                    Due: {new Date(goal.deadline).toLocaleDateString()}
+                  </p>
+                )}
+                
+                {/* Children count */}
+                {goal.children.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {goal.children.length} subgoal{goal.children.length !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            {/* Actions Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit(goal.id)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Goal
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAddSubgoal(goal.id)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Subgoal
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={() => onDelete(goal.id)}
+                  className="text-red-600"
                 >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            {goal.description && (
-              <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
-            )}
-            
-            {goal.deadline && (
-              <div className="text-sm text-gray-600 mb-3">
-                Deadline: {format(new Date(goal.deadline), 'PPP')}
-              </div>
-            )}
-            
-            <div className="mb-3">
-              <div className="flex justify-between text-sm mb-1">
-                <span>Progress</span>
-                <span>{goal.progress}%</span>
-              </div>
-              <Progress value={goal.progress} className="h-2" />
-            </div>
-            
-            {/* Task integration */}
-            {goal.taskIds && goal.taskIds.length > 0 && (
-              <LinkedTasks 
-                taskIds={goal.taskIds} 
-                onTaskComplete={handleTaskComplete}
-                onTaskRemove={handleTaskRemove}
-              />
-            )}
-            
-            <div className="mt-4 flex space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => onAddSubgoal(goal.id)}
-                className="text-xs"
-              >
-                <Plus className="h-3 w-3 mr-1" /> Add Subgoal
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleLinkTask}
-                className="text-xs"
-              >
-                <Link2 className="h-3 w-3 mr-1" /> Link Task
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-      
-      {isEditing && (
-        <GoalForm
-          isOpen={isEditing}
-          onClose={() => setIsEditing(false)}
-          onSave={(updatedGoal) => {
-            onEdit({ ...goal, ...updatedGoal });
-            setIsEditing(false);
-          }}
-          goal={goal}
-        />
-      )}
-      
-      {isLinkingTask && (
-        <LinkTaskDialog
-          isOpen={isLinkingTask}
-          onClose={() => setIsLinkingTask(false)}
-          goalId={goal.id}
-        />
-      )}
-    </>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Goal
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

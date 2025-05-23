@@ -19,7 +19,11 @@ const ChatMessages = ({ messages, isTyping }: ChatMessagesProps) => {
   return (
     <div className="h-80 overflow-y-auto p-4 flex flex-col gap-3">
       {messages.map((message) => (
-        <ChatMessage key={message.id} message={message} />
+        <ChatMessage 
+          key={message.id} 
+          content={message.content} 
+          role={message.sender}
+        />
       ))}
       
       {/* Typing indicator */}

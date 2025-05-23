@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,7 +21,8 @@ const Goals = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<GoalNode | null>(null);
   const [parentGoalId, setParentGoalId] = useState<string | null>(null);
-  const { createGoal, updateGoal, deleteGoal, getGoalById } = useGoals();
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
+  const { goals, createGoal, updateGoal, deleteGoal, getGoalById } = useGoals();
   const { toast } = useToast();
 
   const handleCreateGoal = async (data: any) => {
@@ -81,6 +83,10 @@ const Goals = () => {
     setIsFormOpen(true);
   };
 
+  const handleNodeClick = (goalId: string) => {
+    setSelectedGoalId(goalId);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50">
       <Navbar />
@@ -135,7 +141,11 @@ const Goals = () => {
                 
                 <TabsContent value="mindmap" className="mt-0">
                   <div className="bg-white rounded-lg shadow-sm h-[600px]">
-                    <GoalMindMap />
+                    <GoalMindMap 
+                      goals={goals} 
+                      onNodeClick={handleNodeClick} 
+                      selectedGoalId={selectedGoalId} 
+                    />
                   </div>
                 </TabsContent>
                 

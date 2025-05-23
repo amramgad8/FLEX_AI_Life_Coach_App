@@ -1,8 +1,8 @@
+
 import { useState, useCallback } from 'react';
-import { ChatMessage, MessageType } from './types';
-import { useToast } from '@/components/ui/use-toast';
+import { ChatMessage } from './types';
+import { useToast } from '@/hooks/use-toast';
 import { ChatService } from '../../services/chatService';
-import { CHAT_MODE_SYSTEM_PROMPT, CHAT_MODE_USER_PROMPT } from '../../prompts/chatModePrompt';
 
 export interface ChatbotState {
   isOpen: boolean;
@@ -11,6 +11,7 @@ export interface ChatbotState {
   position: { x: number; y: number };
   activeTab: string;
   aiModel: string;
+  inputMessage: string;
 }
 
 export interface ChatbotActions {
@@ -22,6 +23,9 @@ export interface ChatbotActions {
   setActiveTab: (tab: string) => void;
   setAIModel: (model: string) => void;
   clearChat: () => void;
+  setMessages: (messages: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => void;
+  setInputMessage: (message: string) => void;
+  setIsTyping: (typing: boolean) => void;
 }
 
 export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotActions] {
@@ -43,12 +47,13 @@ export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotA
     setPosition({ x, y });
   }, []);
   
-  const addMessage = useCallback((content: string, type: MessageType) => {
+  const addMessage = useCallback((content: string, sender: 'user' | 'assistant') => {
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
       content,
-      type,
-      timestamp: new Date().toISOString()
+      sender,
+      timestamp: new Date(),
+      type: 'text'
     };
     
     setMessages(prev => [...prev, newMessage]);
@@ -66,10 +71,11 @@ export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotA
       const chatService = ChatService.getInstance();
       const response = await chatService.sendMessage([
         ...messages.map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'assistant',
-          content: msg.content
+          role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          timestamp: Date.now()
         })),
-        { role: 'user', content }
+        { role: 'user' as const, content, timestamp: Date.now() }
       ]);
 
       // Add assistant response
@@ -83,7 +89,7 @@ export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotA
     } finally {
       setIsTyping(false);
     }
-  }, [messages]);
+  }, [messages, addMessage]);
   
   const applySuggestion = useCallback((suggestion: string) => {
     sendMessage(suggestion);
@@ -97,8 +103,9 @@ export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotA
     setMessages([{
       id: Date.now().toString(),
       content: "Chat cleared. How can I help you today?",
-      type: 'assistant',
-      timestamp: new Date().toISOString()
+      sender: 'assistant',
+      timestamp: new Date(),
+      type: 'text'
     }]);
     
     toast({
@@ -114,7 +121,8 @@ export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotA
     isTyping,
     position,
     activeTab,
-    aiModel
+    aiModel,
+    inputMessage
   };
   
   const actions: ChatbotActions = {
@@ -125,7 +133,10 @@ export function useChatbotState(initialModel = 'gpt-4'): [ChatbotState, ChatbotA
     updatePosition,
     setActiveTab,
     setAIModel,
-    clearChat
+    clearChat,
+    setMessages,
+    setInputMessage,
+    setIsTyping
   };
   
   // Return as a tuple array for destructuring

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -82,6 +83,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({
             <TabsContent value="chat" className="m-0">
               <ChatTab 
                 messages={messages} 
+                isLoading={false}
                 isTyping={isTyping} 
                 onSendMessage={onSendMessage} 
               />
