@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,7 +44,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage })
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
         <AnimatePresence>
           {messages.map((message, index) => (
             <ChatMessage
@@ -63,7 +64,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage })
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t">
+      <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
         <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}
@@ -72,9 +73,9 @@ const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage })
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             className={cn(
-              "flex-1 min-h-[40px] max-h-[120px] p-2 rounded-lg border",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500",
-              "resize-none"
+              "flex-1 min-h-[40px] max-h-[120px] p-3 rounded-lg border border-gray-300",
+              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              "resize-none text-sm"
             )}
             rows={1}
             disabled={isLoading}
@@ -83,14 +84,14 @@ const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage })
             type="submit"
             disabled={!input.trim() || isLoading}
             className={cn(
-              "p-2 rounded-lg",
+              "p-3 rounded-lg",
               "bg-blue-600 text-white",
               "hover:bg-blue-700",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               "transition-colors"
             )}
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-4 h-4" />
           </button>
         </div>
       </form>
