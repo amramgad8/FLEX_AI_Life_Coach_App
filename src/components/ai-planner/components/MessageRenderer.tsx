@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ChatMessage from '../ChatMessage';
-import ChatPlanCard from '../ChatPlanCard';
+import InlinePlanCard from './InlinePlanCard';
 
 interface MessageRendererProps {
   message: {
@@ -28,17 +28,18 @@ const MessageRenderer: React.FC<MessageRendererProps> = ({
 }) => {
   if (message.type === 'plan' && message.plan) {
     return (
-      <div key={index} className="mb-4 font-sans">
-        <ChatMessage content={message.content} type="question" />
-        <ChatPlanCard
-          key={editingKey}
-          plan={message.plan}
-          onAddTask={onAddTask}
-          onAddAllTasks={onAddAllTasks}
-          onModifyPlan={onModifyPlan}
-          onSavePlan={onSavePlan}
-          expandable
-        />
+      <div key={index} className="mb-6 font-sans">
+        <ChatMessage content="✨ Here's your personalized plan:" type="question" />
+        <div className="mt-4">
+          <InlinePlanCard
+            key={editingKey}
+            plan={message.plan}
+            onAddTask={onAddTask}
+            onAddAllTasks={onAddAllTasks}
+            onModifyPlan={onModifyPlan}
+            onSavePlan={onSavePlan}
+          />
+        </div>
       </div>
     );
   }
