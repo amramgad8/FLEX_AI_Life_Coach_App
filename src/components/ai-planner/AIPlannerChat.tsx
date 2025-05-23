@@ -89,13 +89,21 @@ const AIPlannerChat = ({
         }
       }
       
-      // If response is wrapped as { plan: ... }, extract the plan object
-      if (response && typeof response === 'object' && 'plan' in response && response.plan && response.plan.header_note) {
-        response = response.plan;
+      // If response has a plan property that contains the plan structure
+      if (response && typeof response === 'object' && response.plan && 
+          typeof response.plan === 'object' && response.plan.header_note && 
+          response.plan.goal && response.plan.milestones) {
+        const planData = response.plan;
+        setPlan(planData);
+        setEditingKey(prev => prev + 1);
+        setMessages(prev => {
+          const filtered = prev.filter(m => m.type !== 'plan');
+          return [...filtered, { content: "Here's your personalized plan:", type: 'plan', plan: planData }];
+        });
       }
-      
-      // If response is a plan object, show as plan
-      if (response && typeof response === 'object' && response.header_note && response.goal && response.milestones) {
+      // If response is directly a plan object
+      else if (response && typeof response === 'object' && response.header_note && 
+               response.goal && response.milestones) {
         setPlan(response);
         setEditingKey(prev => prev + 1);
         setMessages(prev => {

@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoalNode as GoalNodeType } from '@/models/Goal';
@@ -10,7 +11,7 @@ import { Plus, ZoomIn, ZoomOut, Target } from 'lucide-react';
 import LinkTaskDialog from './LinkTaskDialog';      
 
 interface GoalMindMapProps {
-  goals: GoalNodeType[];
+  goals: Record<string, GoalNodeType>;
   onNodeClick: (goalId: string) => void;
   selectedGoalId: string | null;
 }
@@ -135,8 +136,8 @@ const GoalMindMap = ({ goals, onNodeClick, selectedGoalId }: GoalMindMapProps) =
     );
   }, [goals, expandedGoals, toggleExpand, handleEditGoal, handleDeleteGoal, handleAddSubgoal]);
   
-  const handleGoalNodeClick = (goal: GoalNode) => {
-    onNodeClick(goal.id);
+  const handleGoalNodeClick = (goalId: string) => {
+    onNodeClick(goalId);
   };
   
   if (isLoading) {

@@ -11,10 +11,11 @@ interface ChatTabProps {
     content: string;
   }>;
   isLoading: boolean;
+  isTyping?: boolean;
   onSendMessage: (message: string) => Promise<string>;
 }
 
-const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage }) => {
+const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, isTyping = false, onSendMessage }) => {
   const [input, setInput] = React.useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -53,7 +54,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ messages, isLoading, onSendMessage })
               content={message.content}
             />
           ))}
-          {isLoading && (
+          {(isLoading || isTyping) && (
             <ChatMessage
               role="assistant"
               content=""
