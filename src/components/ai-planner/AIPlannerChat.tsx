@@ -89,7 +89,7 @@ const AIPlannerChat = ({
         }
       }
       
-      // If response has a plan property that contains the plan structure
+      // Check if response.plan exists and contains a valid plan structure
       if (response && typeof response === 'object' && response.plan && 
           typeof response.plan === 'object' && 
           response.plan.header_note && response.plan.goal && response.plan.milestones) {
@@ -101,14 +101,16 @@ const AIPlannerChat = ({
           return [...filtered, { content: "Here's your personalized plan:", type: 'plan', plan: planData }];
         });
       }
-      // If response is directly a plan object
+      // If response itself is a valid plan object
       else if (response && typeof response === 'object' && 
-               response.header_note && response.goal && response.milestones) {
-        setPlan(response);
+               (response.header_note || (response.plan && response.plan.header_note))) {
+        // Extract plan data, handling both direct properties and nested plan object
+        const planData = response.header_note ? response : response.plan;
+        setPlan(planData);
         setEditingKey(prev => prev + 1);
         setMessages(prev => {
           const filtered = prev.filter(m => m.type !== 'plan');
-          return [...filtered, { content: "Here's your personalized plan:", type: 'plan', plan: response }];
+          return [...filtered, { content: "Here's your personalized plan:", type: 'plan', plan: planData }];
         });
       } else {
         // Regular text response
