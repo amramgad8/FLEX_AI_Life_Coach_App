@@ -26,7 +26,10 @@ const MessageRenderer: React.FC<MessageRendererProps> = ({
   onModifyPlan,
   onSavePlan
 }) => {
+  console.log('Rendering message:', message);
+  
   if (message.type === 'plan' && message.plan) {
+    console.log('Rendering plan message with plan data:', message.plan);
     return (
       <div key={index} className="mb-6 font-sans">
         <ChatMessage content="✨ Here's your personalized plan:" type="question" />

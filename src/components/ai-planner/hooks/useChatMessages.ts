@@ -24,6 +24,7 @@ export const useChatMessages = (
   }, [messages]);
 
   const handleSavePlan = (updatedPlan: any) => {
+    console.log('Saving plan:', updatedPlan);
     setPlan(updatedPlan);
     setMessages(prev => {
       return prev.map(m => m.type === 'plan' ? { ...m, plan: updatedPlan } : m);
@@ -42,22 +43,32 @@ export const useChatMessages = (
     setIsLoading(true);
 
     try {
+      console.log('Sending message:', input);
       const response = await onUpdatePreferences(input, [], {});
+      console.log('Received response:', response);
+      
       const planData = extractPlanData(response);
       
       if (planData) {
+        console.log('Plan data found, creating plan message:', planData);
         setPlan(planData);
         setEditingKey(prev => prev + 1);
         setMessages(prev => {
           const filtered = prev.filter(m => m.type !== 'plan');
-          return [...filtered, { content: "Here's your personalized plan:", type: 'plan', plan: planData }];
+          return [...filtered, { 
+            content: "Here's your personalized plan:", 
+            type: 'plan', 
+            plan: planData 
+          }];
         });
       } else {
         // Regular text response
         const responseText = typeof response === 'string' ? response : response?.message || 'I understand. Please continue sharing your preferences.';
+        console.log('No plan found, adding text response:', responseText);
         setMessages(prev => [...prev, { content: responseText, type: 'question' }]);
       }
     } catch (error) {
+      console.error('Error in handleSendMessage:', error);
       setMessages(prev => [...prev, { 
         content: "I apologize, but I encountered an error. Please try again.", 
         type: 'question' 
@@ -68,6 +79,7 @@ export const useChatMessages = (
   };
 
   const initializeChat = () => {
+    console.log('Initializing chat');
     setMessages([{ 
       content: "Hi, I'm Flexy, your productivity assistant! What would you like to achieve today? Please describe your main goal and I'll help you create a personalized plan.", 
       type: 'question' 
