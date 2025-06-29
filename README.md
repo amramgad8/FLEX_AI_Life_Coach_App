@@ -60,6 +60,60 @@ FLEX AI Life Coach is an innovative web application that leverages artificial in
 - Goal tracking and progress monitoring
 - Adaptive learning
 
+## 📈 Data Analysis
+
+As part of developing the **FLEX AI Life Coach**, we conducted a detailed **data analysis process** to deeply understand the target users, their productivity patterns, and the factors that truly impact their daily performance.
+
+> **This analysis was not just an extra step—it was a core part of the project.**  
+> Every feature we added was based on real, measurable data—not assumptions.
+
+The goal was to ensure that the FLEX AI system provides truly **impactful, personalized coaching based on actual user behaviors and trends.**
+
+---
+
+### 🔄 Workflow Overview
+
+We followed a structured data analysis process that included:
+
+1. **Data Collection:** Gathering data from user interactions and activities.
+2. **Data Understanding:** Cleaning and preparing the data to ensure accuracy.
+3. **Define Key Questions:** Identifying the critical questions about productivity and user behavior.
+4. **Data Analysis:** Using statistical methods to uncover trends and influencing factors.
+5. **Dashboard Creation:** Building interactive Power BI dashboards to visualize the findings.
+6. **Insights Extraction:** Drawing actionable insights that guided our design decisions and feature development.
+
+<div align="center">
+  <img src="https://github.com/amramgad8/FLEX_AI_Life_Coach_App/blob/0e61f5f803628640f6e5f8c23b174a74116442ef/Analysis_Work_flow.png" alt="Data Analysis Workflow" width="800"/>
+</div>
+
+---
+
+### 📊 Dashboard Insights
+
+We created interactive dashboards using **Power BI** to visualize the key findings.
+
+#### 📌 Dashboard Example 1:
+<div align="center">
+  <img src="https://github.com/amramgad8/FLEX_AI_Life_Coach_App/blob/b156b53d1c1b71b6ff703b8405b64063d66b19fe/dashboardFlex.png" alt="Dashboard Example 1" width="800"/>
+</div>
+
+#### 📌 Dashboard Example 2:
+<div align="center">
+  <img src="https://github.com/amramgad8/FLEX_AI_Life_Coach_App/blob/b156b53d1c1b71b6ff703b8405b64063d66b19fe/dashboardFlex2.png" alt="Dashboard Example 2" width="800"/>
+</div>
+
+---
+
+### 🚀 Key Takeaways
+
+- The majority of users are students who struggle with consistency in habits.
+- **Focus level** and **daily planning** significantly impact productivity.
+- **Sleep duration** has a direct correlation with performance.
+- Users who consistently track their progress achieve higher task completion rates.
+- Time management tools are widely used by high-performing users.
+
+---
+  
 ## 📊 Architecture
 
 ```mermaid
